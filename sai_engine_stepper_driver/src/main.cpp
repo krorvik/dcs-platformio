@@ -1,131 +1,57 @@
 #define DCSBIOS_DEFAULT_SERIAL
-#include "DcsBios.h"
-#include "FastAccelStepper.h"
-#include "Wire.h"
-#include "Button2.h"
-#include "ESPRotary.h"
-// Stepper data
-#define MICROSTEPS 8
-// Set this for array sizing
-#define STEPPERCOUNT 6
-// SWitch/encoder pins
-#define SWITCH_PIN  36
-#define SDA_PIN     23
-#define SCK_PIN    22
+#include <DcsBios.h>
+#include <display.h>
+#include <stepper.h>
+#include <dcs_data.h>
+#include <helpers.h>
 
-// Static setup
-// NodeMCU 32s: Fixed pins on PCB, 9 steppers possible:
-// Full pinout for ref, STEPPERCOUNT = 9
-// const int step_pins[STEPPERCOUNT] = { 32, 25, 27, 12, 21, 18, 17, 4, 2  };
-// const int dir_pins[STEPPERCOUNT] =  { 33, 26, 14, 13, 19,  5, 16, 0, 15 };
-const int step_pins[STEPPERCOUNT] = { 32, 25, 27, 12, 21, 18 };
-const int dir_pins[STEPPERCOUNT] =  { 33, 26, 14, 13, 19,  5 };
-const int encoder_pins[2] = { 39, 34 };
 
-// Motor and axis specs
-//                                             bank   ptch     oil    noz    rpm    ftit
-const int stp_res[STEPPERCOUNT]            = {  200,   720,   720,    720,   720,   720};  // Number of full steps per 360deg rev
-const int stp_min[STEPPERCOUNT]            = {    0,     0,     0,      0,     0,     0};  // Minimum position needle (often starting pos)
-const int stp_max[STEPPERCOUNT]            = {  630,   630,   630,    630,   630,   630};  // Maximum position needle
-const unsigned int stp_speed[STEPPERCOUNT] = { 1200,  1200,  1200,   1200,  1200,  1200};  // Max speed of stepper in steps/sec
-const unsigned int stp_accel[STEPPERCOUNT] = {10000, 10000, 10000,  10000, 10000, 10000};  // Accelleration in steps/s^2. 
+char fuelflow_chars[5] = {'0', '0', '0', '0', '0'};
 
-// Variables
-long encoder_position = 0;
-// We have one switched encoder, that can adjust all steppers. Swith selects encoder. 
-unsigned int adjust_selector = 0; // Can be 0-8, and 9 for off, but we take modulo later for simplicity in switch handler
-bool mainPower = false;
+ViperStepper       oil_stepper( 720,    0,  600,  200, 10000, 10);
+ViperStepper       noz_stepper( 720,    0,  475,  200, 10000, 10);
+ViperStepper       rpm_stepper( 720,    0,  600,  200, 10000, 10);
+ViperStepper      ftit_stepper( 720,    0,  625,  200, 10000, 10);
+ViperStepper  sai_bank_stepper( 200, -800,  800,  200,  2000,  1);
+ViperStepper sai_pitch_stepper( 800,-5500, 5500, 2000,  2000, 10);
 
-// Motor and control objects
-FastAccelStepperEngine stepper_engine = FastAccelStepperEngine();
-ESPRotary setEncoder(encoder_pins[0], encoder_pins[1]);
-Button2 select_button(SWITCH_PIN);
-FastAccelStepper *all_steppers[STEPPERCOUNT];
-
-// called by switch callback
-void selector_clickhandler(Button2 &button) {
-  if (not mainPower) {
-    adjust_selector += 1;
-  }
-}
-
-// called by encoder callback
-void adjustStepper(ESPRotary &encoder) {
-  if (not mainPower) {
-    unsigned int selected_encoder = adjust_selector % 10;  // Will be 0-9 - 9 is off.
-    long newPos = encoder.getPosition();
-    int diff = encoder_position - newPos;
-    if (selected_encoder != 9) {
-      all_steppers[selected_encoder]->move(diff);
-    }
-    encoder_position = newPos;
-  }
-}
-
-// USed by steppers with zero stop. Unusable for bank/pitch
-void setStepperPosition(unsigned int stepper_index, unsigned int newValue) {
-  all_steppers[stepper_index]->moveTo(map(newValue, 0, 65535, MICROSTEPS * stp_min[stepper_index], MICROSTEPS * stp_max[stepper_index]));
-}
-
-// DCS Bios callback setup, this is where the instruments meet the callbacks
-void onSaiBankChange(unsigned int newValue)              { setStepperPosition(0, newValue); }  // This must be replaced with one that handles multiple revolutions. 
-void onSaiPitchChange(unsigned int newValue)             { setStepperPosition(1, newValue); }  // This one is actually OK. Adjust stepper limits. 
-void onEngineOilPressureChange(unsigned int newValue)    { setStepperPosition(2, newValue); } 
-void onEngineNozzlePositionChange(unsigned int newValue) { setStepperPosition(3, newValue); }
-void onEngineTachometerChange(unsigned int newValue)     { setStepperPosition(4, newValue); }
-void onEngineFtitChange(unsigned int newValue)           { setStepperPosition(5, newValue); }
-
-// This one disables the encoder/switch functions
-void onMainPwrSwChange(unsigned int newValue) {
-  if(newValue != 0) { mainPower = true;}
-}
+// DCS Bios callback setup, this is where the instruments meet the callbacks - and the steppers are assigned
+void onEngineOilPressureChange(unsigned int newValue)    { oil_stepper.moveToBounded(newValue); } 
+void onEngineNozzlePositionChange(unsigned int newValue) { noz_stepper.moveToBounded(newValue); }
+void onEngineTachometerChange(unsigned int newValue)     { rpm_stepper.moveToBounded(newValue); }
+void onEngineFtitChange(unsigned int newValue)           { ftit_stepper.moveToBounded(newValue); }
+void onSaiBankChange(unsigned int newValue)              { sai_bank_stepper.moveToContinuous(newValue); }
+void onSaiPitchChange(unsigned int newValue)             { sai_pitch_stepper.moveToBounded(newValue); }
+void onMainPwrSwChange(unsigned int newValue)            { disable_init(); }
+void onFuelflowcounter100Change(unsigned int newValue)   { fuelflow_chars[2] = translateDigitToChar(newValue); }
+void onFuelflowcounter1kChange(unsigned int newValue)    { fuelflow_chars[1] = translateDigitToChar(newValue); }
+void onFuelflowcounter10kChange(unsigned int newValue)   { fuelflow_chars[0] = translateDigitToChar(newValue); }
 
 // SAI and Engine instruments for this one
-DcsBios::IntegerBuffer saiBankBuffer(0x44b0, 0xffff, 0, onSaiBankChange);
-DcsBios::IntegerBuffer saiPitchBuffer(0x44ae, 0xffff, 0, onSaiPitchChange);
-DcsBios::IntegerBuffer engineOilPressureBuffer(0x44da, 0xffff, 0, onEngineOilPressureChange);
-DcsBios::IntegerBuffer engineNozzlePositionBuffer(0x44dc, 0xffff, 0, onEngineNozzlePositionChange);
-DcsBios::IntegerBuffer engineTachometerBuffer(0x44de, 0xffff, 0, onEngineTachometerChange);
-DcsBios::IntegerBuffer engineFtitBuffer(0x44e0, 0xffff, 0, onEngineFtitChange);
-DcsBios::IntegerBuffer mainPwrSwBuffer(0x441c, 0x0003, 0, onMainPwrSwChange);
-
-void encoder_init() {
-  encoder_position = setEncoder.getPosition();
-  setEncoder.setChangedHandler(adjustStepper);
-}
-
-void switch_init() {
-  select_button.setClickHandler(selector_clickhandler);
-}
-
-void steppers_init() {
-  stepper_engine.init(0); // Pin stepper engine to ESP32 core 0. DCS bios will run on core 1 (loop).
-  // Remember off by one 
-  for (int i = 0; i< STEPPERCOUNT; i++) {
-    all_steppers[i] = stepper_engine.stepperConnectToPin(step_pins[i]);
-    all_steppers[i]->setDirectionPin(dir_pins[i]);
-    all_steppers[i]->setSpeedInHz(stp_speed[i] * MICROSTEPS);
-    all_steppers[i]->setAcceleration(stp_accel[i]);
-    // Spin one revolution backwards, endstopped motors will hit endstop, 
-    // others will simply turn one revolution backwards at start. 
-    all_steppers[i]->move(-1 * stp_res[i] * MICROSTEPS);
-    // All motors start at 0 - but can be adjusted before poweron.
-    all_steppers[i]->setCurrentPosition(0);
-  }
-}
+DcsBios::IntegerBuffer saiBankBuffer             (SAI_BANK_GAUGE_ADDRESS,               SAI_BANK_GAUGE_MASK,               SAI_BANK_GAUGE_SHIFTBY,               onSaiBankChange);
+DcsBios::IntegerBuffer saiPitchBuffer            (SAI_PITCH_GAUGE_ADDRESS,              SAI_PITCH_GAUGE_MASK,              SAI_BANK_GAUGE_SHIFTBY,               onSaiPitchChange);
+DcsBios::IntegerBuffer engineOilPressureBuffer   (ENGINE_OIL_PRESSURE_GAUGE_ADDRESS,    ENGINE_OIL_PRESSURE_GAUGE_MASK,    ENGINE_OIL_PRESSURE_GAUGE_SHIFTBY,    onEngineOilPressureChange);
+DcsBios::IntegerBuffer engineNozzlePositionBuffer(ENGINE_NOZZLE_POSITION_GAUGE_ADDRESS, ENGINE_NOZZLE_POSITION_GAUGE_MASK, ENGINE_NOZZLE_POSITION_GAUGE_SHIFTBY, onEngineNozzlePositionChange);
+DcsBios::IntegerBuffer engineTachometerBuffer    (ENGINE_TACHOMETER_GAUGE_ADDRESS,      ENGINE_TACHOMETER_GAUGE_MASK,      ENGINE_TACHOMETER_GAUGE_SHIFTBY,      onEngineTachometerChange);
+DcsBios::IntegerBuffer engineFtitBuffer          (ENGINE_FTIT_GAUGE_ADDRESS,            ENGINE_FTIT_GAUGE_MASK,            ENGINE_FTIT_GAUGE_SHIFTBY,            onEngineFtitChange);
+DcsBios::IntegerBuffer mainPwrSwBuffer           (MAIN_PWR_SW_SELECTOR_ADDRESS,         MAIN_PWR_SW_SELECTOR_MASK,         MAIN_PWR_SW_SELECTOR_SHIFTBY,         onMainPwrSwChange);
+DcsBios::IntegerBuffer fuelflowcounter100Buffer  (FUELFLOWCOUNTER_100_GAUGE_ADDRESS,    FUELFLOWCOUNTER_100_GAUGE_MASK,    FUELFLOWCOUNTER_100_GAUGE_SHIFTBY,    onFuelflowcounter100Change);
+DcsBios::IntegerBuffer fuelflowcounter1kBuffer   (FUELFLOWCOUNTER_1K_GAUGE_ADDRESS,     FUELFLOWCOUNTER_1K_GAUGE_MASK,     FUELFLOWCOUNTER_1K_GAUGE_SHIFTBY,     onFuelflowcounter1kChange);
+DcsBios::IntegerBuffer fuelflowcounter10kBuffer  (FUELFLOWCOUNTER_10K_GAUGE_ADDRESS,    FUELFLOWCOUNTER_10K_GAUGE_MASK,    FUELFLOWCOUNTER_10K_GAUGE_SHIFTBY,    onFuelflowcounter10kChange);
 
 void setup() {
-  encoder_init();
-  switch_init();
-  steppers_init();
+  // sai_bank_stepper.adjustFactor = 2;
+  stepper_init();
+  display_init();
   DcsBios::setup();
 }
 
 void loop() {
-  if (not mainPower) {
-    select_button.loop();
-    setEncoder.loop();
+  stepper_loop();
+  if (initAllowed()) {
+    write_display(String(getStepperID()) + " " + String(lastpos));
+  } else {
+    write_display(String(fuelflow_chars));
   }
   DcsBios::loop();
 }
-
