@@ -7,40 +7,9 @@
 #include <adi_displays.h>
 #include <adi_flags.h>
 
-#define m15_limit 49000
-#define m1_limit 60413
-#define on_limit 62782
-const unsigned int m1_ratio = (m1_limit - m15_limit) * 2;
-const unsigned int on_ratio = (on_limit - m1_limit) * 2;
-
-// The last char is a nullterminator, to make sure it converts well to string. 
-// Not manipulated by this code.
-char alt_digits[6] = { '0', '0', '0', '0', '0', '\0'};
-char baro_digits[5] = {'2', '9', '9', '2', '\0'};
-char mach_chars[5] = {'0', '.', '0', '0', '\0'};
-
 int deviation = 32768;
 int bubble = 32768;
 int turnrate = 32768;
-
-float calculate_mach(unsigned int value) {  
-  if (value >= on_limit) {
-    return 0.5;
-  } else if (value >= m1_limit) {
-    return 0.5 + (on_limit - (float) value) / on_ratio;
-  } else {
-    return 1 + (m1_limit - (float) value) / m1_ratio;
-  }
-}
-
-char* alt_checkered() {
-  char *tmp_digits = alt_digits;
-  if (alt_digits[0] == '0') {
-    tmp_digits[0] = 0xB0;
-    if (alt_digits[1] == '0' ) { tmp_digits[1] = 0xB0;}
-  }
-  return tmp_digits;
-}
 
 ViperStepper        airspeed_stepper ( 720,    0,  720, 800,  5000, 5);
 ViperStepper        altimeter_stepper( 720,    0,  720, 800,  5000, 5);
@@ -53,9 +22,7 @@ ViperStepper        adi_bank_stepper ( 200, -200,  200, 200,  2000, 1);
 // Make sure we can no longer adjust needles after poweron, and if switched off, enable stepper adjust again
 
 // Mach number
-void onMachIndicatorChange(unsigned int newValue) {  
-  dtostrf(calculate_mach(newValue), 4, 2, mach_chars);
-}
+void onMachIndicatorChange(unsigned int newValue) {  dtostrf(calculate_mach(newValue), 4, 2, mach_chars); }
 
 // ADI Flags
 void onAdiLocFlagChange(unsigned int newValue) { setServo(0, newValue, 5); }
@@ -78,6 +45,7 @@ void onAltPressureDrum3CntChange(unsigned int newValue) { baro_digits[0] = '0' +
 void onAltPneuFlagChange(unsigned int newValue) {}
 void onAlt10000FtCntChange(unsigned int newValue) { alt_digits[0] = '0' + translateDigit(newValue); }
 void onAlt1000FtCntChange(unsigned int newValue)  { alt_digits[1] = '0' + translateDigit(newValue); }
+
 void onAlt100FtCntChange(unsigned int newValue) {
   alt_digits[2] = '0' + translateDigit(newValue);
   // Calculate mods
