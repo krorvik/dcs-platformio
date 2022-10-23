@@ -2,16 +2,17 @@
 #include <DcsBios.h>
 #include <i2c.h>
 #include <stepper.h>
-#include <dcs_data.h>
+#include <f16c_data.h>
+#include <common_data.h>
 #include <helpers.h>
 
 ViperStepper        compass_stepper ( 720,   0,  720, 800,  5000, 5);
-ViperStepper        fuel_fr_stepper ( 720,   0,  720, 800,  5000, 5);
-ViperStepper        fuel_al_stepper ( 720,   0,  720, 800,  5000, 5);
-ViperStepper        hyda_stepper    ( 720,   0,  720, 800,  5000, 5);
-ViperStepper        hydb_stepper    ( 720,   0,  720, 800,  5000, 5);
-ViperStepper        epu_stepper     ( 720,   0,  720, 800,  5000, 5);
-ViperStepper        oxy_stepper     ( 720,   0,  720, 800,  5000, 5);
+ViperStepper        fuel_fr_stepper ( 720,   0,  550, 800,  5000, 5);
+ViperStepper        fuel_al_stepper ( 720,   0,  550, 800,  5000, 5);
+ViperStepper        hyda_stepper    ( 720,   0,  630, 800,  5000, 5);
+ViperStepper        hydb_stepper    ( 720,   0,  630, 800,  5000, 5);
+ViperStepper        epu_stepper     ( 720,   0,  630, 800,  5000, 5);
+ViperStepper        oxy_stepper     ( 720,   0,  630, 800,  5000, 5);
 
 // DCS callbacks
 void onHdgDegChange(unsigned int newValue)           { compass_stepper.moveToContinuous(newValue); }
@@ -21,11 +22,11 @@ void onSysaPressureChange(unsigned int newValue)     { hyda_stepper.moveToBounde
 void onSysbPressureChange(unsigned int newValue)     { hydb_stepper.moveToBounded(newValue); }
 void onCockpitAlititudeChange(unsigned int newValue) { oxy_stepper.moveToBounded(newValue); }
 void onHydrazinVolumeChange(unsigned int newValue)   { epu_stepper.moveToBounded(newValue); }
-void onFueltotalizer100Change(unsigned int newValue) { totalizer_digits[2] = '0' + translateDigit(newValue); }
-void onFueltotalizer1kChange(unsigned int newValue)  { totalizer_digits[1] = '0' + translateDigit(newValue); }
-void onFueltotalizer10kChange(unsigned int newValue) { totalizer_digits[0] = '0' + translateDigit(newValue); }
+void onFueltotalizer100Change(unsigned int newValue) { totalizer_digits[2] = '0' + translate_digit(newValue); }
+void onFueltotalizer1kChange(unsigned int newValue)  { totalizer_digits[1] = '0' + translate_digit(newValue); }
+void onFueltotalizer10kChange(unsigned int newValue) { totalizer_digits[0] = '0' + translate_digit(newValue); }
 
-DcsBios::IntegerBuffer hdgDegBuffer(0x0436, 0x01ff, 0, onHdgDegChange);
+DcsBios::IntegerBuffer hdgDegBuffer(COMMON_HEADING_ADDRESS, COMMON_HEADING_MASK, COMMON_HEADING_SHIFTBY, onHdgDegChange);
 DcsBios::IntegerBuffer fuelAlBuffer(FUEL_AL_GAUGE_ADDRESS , FUEL_AL_GAUGE_MASK , FUEL_AL_GAUGE_SHIFTBY , onFuelAlChange);
 DcsBios::IntegerBuffer fuelFrBuffer(FUEL_FR_GAUGE_ADDRESS , FUEL_FR_GAUGE_MASK , FUEL_FR_GAUGE_SHIFTBY , onFuelFrChange);
 DcsBios::IntegerBuffer sysbPressureBuffer(SYSA_PRESSURE_GAUGE_ADDRESS , SYSA_PRESSURE_GAUGE_MASK , SYSA_PRESSURE_GAUGE_SHIFTBY , onSysbPressureChange);
@@ -47,7 +48,7 @@ void loop() {
   if (initAllowed()) {
     write_display(String(getStepperID() ), 55, 0, 4);
   } else {
-    write_display(fuel_blanked(), 0, 0, 4);
+    write_display(totalizer_digits, 0, 0, 4);
   }
   DcsBios::loop();
 }
