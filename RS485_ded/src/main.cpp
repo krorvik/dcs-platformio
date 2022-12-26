@@ -9,10 +9,12 @@
 
 // We use RS485, so this is way to go. Number must be unique across clients.
 #define DCSBIOS_RS485_SLAVE 5
-// Hardwired into RS485/nano/pro mini PCBs
 #define TXENABLE_PIN 2
-// No comment needed ;)
 #include "DcsBios.h"
+// Hardwired into RS485/nano/pro mini PCBs
+
+// No comment needed ;)
+
 // Graphics
 #include <U8g2lib.h>
 #include <U8glib.h>
@@ -28,12 +30,11 @@ const int eyebrowpins[8] = { 6, 7, 8, 9, 10, A2, A0, A1};
 // parameters are rotation, and pins CS/SS, DC, RST.
 U8G2_UC1609_SLG19264_2_4W_HW_SPI DED(U8G2_R0, /* cs=*/ 3, /* dc=*/ 4, /* reset=*/ 5);
 
-// Initial lines of DED data, so we see it working. DCS will overwrite.
-char* line1 = "           DCS";
-char* line2 = "";
-char* line3 = "      F-16C Blk 50";
-char* line4 = "";
-char* line5 = "          init";
+char* line1;
+char* line2;
+char* line3; 
+char* line4;
+char* line5;
 
 // Current best font for DED by community here:
 // https://forum.dcs.world/topic/261806-f16-ded-with-ssd1322-and-dcs-bios/page/3/
@@ -80,26 +81,9 @@ const u8g_fntpgm_uint8_t DEDfont16px[1148] U8G_FONT_SECTION("DEDfont16px") =
   "\372\60\204\62E%\65%\31\0~\12\70xqf\23\311l\2\0\0\0\4\377\377\0";
 
 
-// DED Callbacks called from DCS bios simply set values in variables.
-void onDedLine1Change(char* newValue) {
-  line1 = newValue;
-}
-void onDedLine2Change(char* newValue) {
-  line2 = newValue;
-}
-void onDedLine3Change(char* newValue) {
-  line3 = newValue;
-}
-void onDedLine4Change(char* newValue) {
-  line4 = newValue;
-}
-void onDedLine5Change(char* newValue) {
-  line5 = newValue;
-}
-
 void drawDED() {
   DED.firstPage();
-  do {
+  do {    
     DED.drawStr(0, 12.8, line1);
     DED.drawStr(0, 25.6, line2);
     DED.drawStr(0, 38.4, line3);
@@ -109,20 +93,34 @@ void drawDED() {
   DED.updateDisplay();
 }
 
-// DCS bios update callback - draws DED display.
-void onUpdateCounterChange(unsigned int newValue) {
+// DED Callbacks called from DCS bios simply set values in variables.
+void onDedLine1Change(char* newValue) {
+  line1 = newValue;
+  drawDED();
+}
+void onDedLine2Change(char* newValue) {
+  line2 = newValue;
+  drawDED();
+}
+void onDedLine3Change(char* newValue) {
+  line3 = newValue;
+  drawDED();
+}
+void onDedLine4Change(char* newValue) {
+  line4 = newValue;
+  drawDED();
+}
+void onDedLine5Change(char* newValue) {
+  line5 = newValue;
   drawDED();
 }
 
 // Register callbacks for DED
-DcsBios::StringBuffer<25> dedLine1Buffer(DED_LINE_1_DISPLAY_ADDRESS, onDedLine1Change);
-DcsBios::StringBuffer<25> dedLine2Buffer(DED_LINE_2_DISPLAY_ADDRESS, onDedLine2Change);
-DcsBios::StringBuffer<25> dedLine3Buffer(DED_LINE_3_DISPLAY_ADDRESS, onDedLine3Change);
-DcsBios::StringBuffer<25> dedLine4Buffer(DED_LINE_4_DISPLAY_ADDRESS, onDedLine4Change);
-DcsBios::StringBuffer<25> dedLine5Buffer(DED_LINE_5_DISPLAY_ADDRESS, onDedLine5Change);
-
-// Use the DCS bios update counter to trigger all changes
-DcsBios::IntegerBuffer UpdateCounterBuffer(0xfffe, 0x00ff, 0, onUpdateCounterChange);
+DcsBios::StringBuffer<29> dedLine1Buffer(DED_LINE_1_DISPLAY_ADDRESS, onDedLine1Change);
+DcsBios::StringBuffer<29> dedLine2Buffer(DED_LINE_2_DISPLAY_ADDRESS, onDedLine2Change);
+DcsBios::StringBuffer<29> dedLine3Buffer(DED_LINE_3_DISPLAY_ADDRESS, onDedLine3Change);
+DcsBios::StringBuffer<29> dedLine4Buffer(DED_LINE_4_DISPLAY_ADDRESS, onDedLine4Change);
+DcsBios::StringBuffer<29> dedLine5Buffer(DED_LINE_5_DISPLAY_ADDRESS, onDedLine5Change);
 
 // Add right eyebrow lights, pins D6-D10, D12, A0-A1. Simple DCS Bios LEDs to pins.
 DcsBios::LED LIGHT_ENGINE ( LIGHT_ENGINE_LED_ADDRESS ,  LIGHT_ENGINE_LED_MASK , eyebrowpins[0]);
@@ -145,8 +143,6 @@ void setup() {
   DED.begin();
   DED.clearBuffer();
   DED.setFont(DEDfont16px);
-  drawDED();
-
   delay(2000);
   // Eyebrow Lights off
   for (int index = 0; index < 8; index++) {
@@ -157,8 +153,6 @@ void setup() {
 }
 
 void loop() {
-  // Draw display
-
   // And DCS bios loop.
   DcsBios::loop();
 }

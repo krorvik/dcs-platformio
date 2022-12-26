@@ -56,7 +56,7 @@ void onAoaIndexBrtKnbChange(unsigned int newValue) { aoa_brightness = map(newVal
 DcsBios::IntegerBuffer arStatusBrtKnbBuffer(AR_STATUS_BRT_KNB_LIMITDIAL_ADDRESS, AR_STATUS_BRT_KNB_LIMITDIAL_MASK, AR_STATUS_BRT_KNB_LIMITDIAL_SHIFTBY, onArStatusBrtKnbChange);
 DcsBios::IntegerBuffer aoaIndexBrtKnbBuffer(AOA_INDEX_BRT_KNB_LIMITDIAL_ADDRESS, AOA_INDEX_BRT_KNB_LIMITDIAL_MASK, AOA_INDEX_BRT_KNB_LIMITDIAL_SHIFTBY, onAoaIndexBrtKnbChange);
 DcsBios::IntegerBuffer lightRdyBuffer(LIGHT_RDY_LED_ADDRESS, LIGHT_RDY_LED_MASK, LIGHT_RDY_LED_SHIFTBY, onLightRdyChange);
-DcsBios::IntegerBuffer lightArNwsBuffer(LIGHT_NWS_FAIL_LED_ADDRESS, LIGHT_NWS_FAIL_LED_MASK, LIGHT_NWS_FAIL_LED_SHIFTBY, onLightArNwsChange);
+DcsBios::IntegerBuffer lightArNwsBuffer(LIGHT_AR_NWS_LED_ADDRESS, LIGHT_AR_NWS_LED_MASK, LIGHT_AR_NWS_LED_SHIFTBY, onLightArNwsChange);
 DcsBios::IntegerBuffer lightDiscBuffer(LIGHT_DISC_LED_ADDRESS, LIGHT_DISC_LED_MASK, LIGHT_DISC_LED_SHIFTBY, onLightDiscChange);
 DcsBios::IntegerBuffer lightAoaDnBuffer(LIGHT_AOA_DN_LED_ADDRESS, LIGHT_AOA_DN_LED_MASK, LIGHT_AOA_DN_LED_SHIFTBY, onLightAoaDnChange);
 DcsBios::IntegerBuffer lightAoaMidBuffer(LIGHT_AOA_MID_LED_ADDRESS, LIGHT_AOA_MID_LED_MASK, LIGHT_AOA_MID_LED_SHIFTBY, onLightAoaMidChange);
