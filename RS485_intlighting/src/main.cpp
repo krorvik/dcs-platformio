@@ -1,8 +1,7 @@
-#define DCSBIOS_RS485_SLAVE 120
+#define DCSBIOS_RS485_SLAVE 116
 #define TXENABLE_PIN 2
 #include <DcsBios.h>
 #include <f16c_data.h>
-#include <common_data.h>
 
 #define PRI_CONSOLE_OUT 5
 #define PRI_INSTR_OUT 6
@@ -26,13 +25,22 @@ void reset(unsigned int level) {
   analogWrite(FLOOD_INSTR_OUT, level);
 }
 
+void blink()  {
+  for (unsigned i = 0; i < 10; i++) {
+    reset(255);
+    delay(500);
+    reset(0);
+    delay(500);
+  }
+}
+
 void setup() {
-  delay(1000);
   pinMode(PRI_CONSOLE_OUT, OUTPUT);
   pinMode(PRI_INSTR_OUT, OUTPUT);
   pinMode(FLOOD_CONSOLE_OUT, OUTPUT);
   pinMode(FLOOD_INSTR_OUT, OUTPUT);  
-  reset(64);
+  //blink();
+  reset(128);
   DcsBios::setup();
 }
 

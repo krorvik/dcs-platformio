@@ -19,7 +19,7 @@ void displays_init() {
   chan_display.clear();
   freq_display.clear();
   chan_display.showNumber(88);
-  freq_display.showNumber(888888);
+  freq_display.showNumber(888.888);
   delay(3000);
   chan_display.clear();
   freq_display.clear();
@@ -27,16 +27,16 @@ void displays_init() {
 
 void onUhfChanDispChange(char* newValue) {
   if (strcmp(newValue, "**") == 0) {
-    chan_display.showNumber(88);
-  } else if (strcmp(newValue, "  ") == 0) {
+    chan_display.showString("--");
+  } else if ((strcmp(newValue, "  ") == 0) or (strcmp(newValue, "00") == 0)) {
     chan_display.clear();
   }
   chan_display.showNumber(atoi(newValue));
 }
 void onUhfFreqDispChange(char* newValue) {
   if (strcmp(newValue, "***.***") == 0) { 
-    freq_display.showString("888888");
-  } else if (strcmp(newValue, "      ") == 0) {
+    freq_display.showString("      ");
+  } else if ((strcmp(newValue, "      ") == 0) or (strcmp(newValue, "000000") == 0)) {
     freq_display.clear();
   } else {
     float value = atof(newValue);
@@ -52,7 +52,7 @@ DcsBios::SwitchMultiPos uhfFuncKnb("UHF_FUNC_KNB", uhfFuncKnbPins, 4);
 DcsBios::Switch3Pos uhfModeKnb("UHF_MODE_KNB", 7, 8);
 DcsBios::Switch2Pos uhfSquelchSw("UHF_SQUELCH_SW", 9);
 DcsBios::Switch2Pos uhfStatusBtn("UHF_STATUS_BTN", 12);
-DcsBios::Switch2Pos uhfTestBtn("UHF_TEST_BTN", 10);
+DcsBios::Switch2Pos uhfTestBtn("UHF_TEST_BTN", 13);
 DcsBios::Switch2Pos uhfToneBtn("UHF_TONE_BTN", 11);
 DcsBios::Potentiometer uhfVolKnb("UHF_VOL_KNB", A1);
 

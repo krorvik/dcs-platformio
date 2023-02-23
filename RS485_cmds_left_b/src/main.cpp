@@ -7,23 +7,30 @@
 #define CLK 11 //pins definitions for TM1637 and can be changed to other ports
 #define DIO 12
 
-TM1637TinyDisplay6  tm1637_6D(CLK, DIO);
+char display_chars[7] = { ' ', '-' , '-', ' ', '-', '-'};
 
-void onUhfFreqDispChange(char* newValue) {
-    // Known non-decimal values
-    char stars[] = "***.***";
-    if (strcmp(newValue, stars) == 0) { 
-      tm1637_6D.showString("------");
-    } else if (strcmp(newValue, "       ") == 0) { 
-      tm1637_6D.clear(); 
-    } else {
-      // Float, display it
-      float value = atof(newValue);
-      tm1637_6D.showNumber(value);
-    }
+TM1637TinyDisplay6  display(CLK, DIO);
+
+// void onCmdsO1AmountChange(char* newValue) {}    // Not implemented in DCS/block 50
+// void onCmdsO2AmountChange(char* newValue) {}    // Not implemented in DCS/block 50
+void onCmdsChAmountChange(char* newValue) {
+  display_chars[2] = (char*) newValue[3];
+  display_chars[1] = (char*) newValue[2];
 }
 
-DcsBios::StringBuffer<7> uhfFreqDispBuffer(UHF_FREQ_DISP_DISPLAY_ADDRESS, onUhfFreqDispChange);
+void onCmdsFlAmountChange(char* newValue) {
+  display_chars[5] = (char*) newValue[3];
+  display_chars[4] = (char*) newValue[2];
+}
+
+void update_display() {
+  display.showString(display_chars);
+}
+
+DcsBios::StringBuffer<4> cmdsChAmountBuffer(CMDS_CH_Amount_DISPLAY_ADDRESS, onCmdsChAmountChange);
+DcsBios::StringBuffer<4> cmdsFlAmountBuffer(CMDS_FL_Amount_DISPLAY_ADDRESS, onCmdsFlAmountChange);
+// DcsBios::StringBuffer<4> cmdsO1AmountBuffer(CMDS_O1_Amount_DISPLAY_ADDRESS, onCmdsO1AmountChange);  // Not implemented in DCS/block 50
+// DcsBios::StringBuffer<4> cmdsO2AmountBuffer(CMDS_O2_Amount_DISPLAY_ADDRESS, onCmdsO2AmountChange);  // Not implemented in DCS/block 50
 // Toggle switches
 
 // Rotary switches
@@ -43,25 +50,21 @@ void initialize() {
   for (int i = A0; i <= A2; i++) {
     pinMode(i, INPUT_PULLUP);
   }
-
-  tm1637_6D.setBrightness(BRIGHT_HIGH);
-  tm1637_6D.showNumber(888888);
- 
+  display.setBrightness(BRIGHT_HIGH);
   delay(2000);
- 
-  tm1637_6D.clear(); 
+  display.clear(); 
 }
-
 
 void setup() {
   initialize();  
   DcsBios::setup();
+  update_display();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   DcsBios::loop();
-  
+  update_display();
 }
 
 

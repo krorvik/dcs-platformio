@@ -17,11 +17,9 @@ bool aux_flag = true;
 
 // TODO:
 int getLocPos(unsigned int newValue) {
-
 }
 //TODO:
 int getGsPos(unsigned int newValue) {
-    
 }
 
 void onAdiGsFlagChange(unsigned int newValue) { gs_flag = (newValue > 35535); }
@@ -32,11 +30,12 @@ void onAdiGsPointerChange(unsigned int newValue){ deviation = map(newValue, 0, 6
 
 void onAdiGsBarChange(unsigned int newValue) { 
   gs_pos = map(newValue, 17263, 48272, 0, 64); 
-  gs_visible = newValue <= 48272 or newValue >= 17263;
+  gs_visible = newValue <= 48272 and newValue >= 17263;
 }
+
 void onAdiLocBarChange(unsigned int newValue) {
   loc_pos = map(newValue, 13300, 52235, 32, 96); 
-  loc_visible = newValue >= 13300 or newValue <= 52235;
+  loc_visible = newValue >= 13300 and newValue <= 52235;
 }
 
 DcsBios::IntegerBuffer adiGsFlagBuffer(ADI_GS_FLAG_GAUGE_MASK , ADI_GS_FLAG_GAUGE_MASK, ADI_GS_FLAG_GAUGE_SHIFTBY, onAdiGsFlagChange);
@@ -115,17 +114,17 @@ void display_loop() {
   if (loc_visible and gs_visible) {
     draw_ils_back();
     draw_deviation_scale();
-    draw_deviation();
-    draw_ils_needles();
+    //draw_deviation();
+    //draw_ils_needles();
   }
   draw_adi_flags();  
   display.display();
 }
 
 void setup() {
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  //Initialize with the I2C address 0x3C.
-  display_loop();
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  //Initialize with the I2C address 0x3C.  
   DcsBios::setup();
+  display_loop();
 }
 
 void loop() {

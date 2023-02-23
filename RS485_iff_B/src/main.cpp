@@ -3,6 +3,7 @@
 #include "DcsBios.h"
 #include <Adafruit_SSD1306.h>
 #include "f16c_data.h"
+#include "helpers.h"
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 32 // OLED display height, in pixels
@@ -29,18 +30,16 @@ DcsBios::Switch3Pos iffM1Sel2("IFF_M1_SEL_2", 6,5);
 DcsBios::Switch3Pos iffM3Sel1("IFF_M3_SEL_1", 8,7);
 DcsBios::Switch3Pos iffM3Sel2("IFF_M3_SEL_2", 10, 9);
 
-void onIffCodeDrumDigit1Change(unsigned int newValue) { iff_digits[0] = '0' +  newValue; }
-void onIffCodeDrumDigit2Change(unsigned int newValue) { iff_digits[1] = '0' +  newValue; }
-void onIffCodeDrumDigit3Change(unsigned int newValue) { iff_digits[2] = '0' +  newValue; }
-void onIffCodeDrumDigit4Change(unsigned int newValue) { iff_digits[3] = '0' +  newValue; }
-void onUpdateCounterChange(unsigned int newValue) { updateDisplay(); }
+void onIffCodeDrumDigit1Change(unsigned int newValue) { iff_digits[0] = '0' +  translate_digit(newValue); }
+void onIffCodeDrumDigit2Change(unsigned int newValue) { iff_digits[1] = '0' +  translate_digit(newValue); }
+void onIffCodeDrumDigit3Change(unsigned int newValue) { iff_digits[2] = '0' +  translate_digit(newValue); }
+void onIffCodeDrumDigit4Change(unsigned int newValue) { iff_digits[3] = '0' +  translate_digit(newValue); }
 
 
 DcsBios::IntegerBuffer iffCodeDrumDigit1Buffer(IFF_CODE_DRUM_DIGIT_1_GAUGE_ADDRESS, IFF_CODE_DRUM_DIGIT_1_GAUGE_MASK, IFF_CODE_DRUM_DIGIT_1_GAUGE_SHIFTBY, onIffCodeDrumDigit1Change);
 DcsBios::IntegerBuffer iffCodeDrumDigit2Buffer(IFF_CODE_DRUM_DIGIT_2_GAUGE_ADDRESS, IFF_CODE_DRUM_DIGIT_2_GAUGE_MASK, IFF_CODE_DRUM_DIGIT_2_GAUGE_SHIFTBY, onIffCodeDrumDigit2Change);
 DcsBios::IntegerBuffer iffCodeDrumDigit3Buffer(IFF_CODE_DRUM_DIGIT_3_GAUGE_ADDRESS, IFF_CODE_DRUM_DIGIT_3_GAUGE_MASK, IFF_CODE_DRUM_DIGIT_3_GAUGE_SHIFTBY, onIffCodeDrumDigit3Change);
 DcsBios::IntegerBuffer iffCodeDrumDigit4Buffer(IFF_CODE_DRUM_DIGIT_4_GAUGE_ADDRESS, IFF_CODE_DRUM_DIGIT_4_GAUGE_MASK, IFF_CODE_DRUM_DIGIT_4_GAUGE_SHIFTBY, onIffCodeDrumDigit4Change);
-DcsBios::IntegerBuffer UpdateCounterBuffer(0xfffe, 0x00ff, 0, onUpdateCounterChange);
 
 void setup() {
   display_iff.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
@@ -50,4 +49,5 @@ void setup() {
 
 void loop() {
   DcsBios::loop();
+  updateDisplay();
 }

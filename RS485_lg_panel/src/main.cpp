@@ -7,8 +7,8 @@
 #define LG_HANDLE_UP 0
 #define LG_HANDLE_DOWN 1
 
-const int lg_led_pins[3] = { 3, 4, 5 };
-const int lg_warn_pin = 6;
+const int lg_led_pins[3] = { 3, 6, 5 };
+const int lg_warn_pin = 4;
 const int sensor_pins[sensorcount] = { A6, A7 };
 
 // Sensor values
@@ -24,12 +24,18 @@ void initSensors() {
 
 void initLeds() {
   for(int ix = 3; ix <= 6; ix++) {
-    pinMode(ix, OUTPUT);
-    digitalWrite(ix, HIGH);
+    pinMode(ix, OUTPUT);    
   }
+
+  digitalWrite(4, HIGH);
+  for (int iz = 0; iz < 3; iz++) {
+    analogWrite(lg_led_pins[iz], 16);
+  }
+
   delay(2000);
-  for(int ix = 3; ix <= 6; ix++) {
-    digitalWrite(ix, LOW);
+  digitalWrite(4, LOW);
+  for(int iz = 0; iz < 3; iz++) {
+    analogWrite(lg_led_pins[iz], 0);    
   }
 }
 
@@ -57,6 +63,10 @@ void emit_dcs_command() {
   }  
 }
 
+void onLightGearLChange(unsigned int newValue) { analogWrite(lg_led_pins[0], 16 * newValue); }
+void onLightGearNChange(unsigned int newValue) { analogWrite(lg_led_pins[1], 16 * newValue); }
+void onLightGearRChange(unsigned int newValue) { analogWrite(lg_led_pins[2], 16 * newValue); }
+
 
 DcsBios::Switch3Pos antiSkidSw("ANTI_SKID_SW", 9, 10);
 DcsBios::Switch2Pos brakeChanSw("BRAKE_CHAN_SW", 11);
@@ -69,9 +79,9 @@ DcsBios::Switch2Pos gndJettEnableSw("GND_JETT_ENABLE_SW", 12);
 DcsBios::Switch2Pos emergStroreJett("EMERG_STRORE_JETT", 8);
 
 // LEDs
-DcsBios::LED lightGearL(LIGHT_GEAR_L_LED_ADDRESS, LIGHT_GEAR_L_LED_MASK, lg_led_pins[0]);
-DcsBios::LED lightGearN(LIGHT_GEAR_N_LED_ADDRESS, LIGHT_GEAR_N_LED_MASK, lg_led_pins[1]);
-DcsBios::LED lightGearR(LIGHT_GEAR_R_LED_ADDRESS, LIGHT_GEAR_R_LED_MASK, lg_led_pins[2]);
+DcsBios::IntegerBuffer lightGearLBuffer(LIGHT_GEAR_L_LED_ADDRESS, LIGHT_GEAR_L_LED_MASK, LIGHT_GEAR_L_LED_SHIFTBY, onLightGearLChange);
+DcsBios::IntegerBuffer lightGearNBuffer(LIGHT_GEAR_N_LED_ADDRESS, LIGHT_GEAR_N_LED_MASK, LIGHT_GEAR_N_LED_SHIFTBY, onLightGearNChange);
+DcsBios::IntegerBuffer lightGearRBuffer(LIGHT_GEAR_R_LED_ADDRESS, LIGHT_GEAR_R_LED_MASK, LIGHT_GEAR_R_LED_SHIFTBY, onLightGearRChange);
 DcsBios::LED lightGearWarn(LIGHT_GEAR_WARN_LED_ADDRESS, LIGHT_GEAR_WARN_LED_MASK, lg_warn_pin);
 
 void setup() {

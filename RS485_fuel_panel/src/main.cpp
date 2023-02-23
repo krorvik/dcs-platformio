@@ -1,4 +1,4 @@
-#define DCSBIOS_RS485_SLAVE 100
+#define DCSBIOS_RS485_SLAVE 101
 #define TXENABLE_PIN 2
 #include "DcsBios.h"
 

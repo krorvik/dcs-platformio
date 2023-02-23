@@ -15,7 +15,7 @@ DcsBios::LED lightRwrSearch(LIGHT_RWR_SEARCH_LED_ADDRESS, LIGHT_RWR_SEARCH_LED_M
 DcsBios::LED lightRwrAltLow0(LIGHT_RWR_ALT_LOW_LED_ADDRESS, LIGHT_RWR_ALT_LOW_LED_MASK, 8);
 DcsBios::LED lightRwrAltLow1(LIGHT_RWR_ALT_LOW_LED_ADDRESS, LIGHT_RWR_ALT_LOW_LED_MASK, 9);
 
-DcsBios::Switch2Pos rwrPwrBtn("RWR_PWR_BTN", A0);
+DcsBios::Switch2Pos rwrPwrBtn("RWR_PWR_BTN", "TOGGLE", A0);
 DcsBios::Switch2Pos rwrAltBtn("RWR_ALT_BTN", A1);
 DcsBios::Switch2Pos rwrActPwrBtn("RWR_ACT_PWR_BTN", A2);
 DcsBios::Switch2Pos rwrSearchBtn("RWR_SEARCH_BTN", A3);

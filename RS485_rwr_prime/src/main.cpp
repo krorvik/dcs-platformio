@@ -7,14 +7,10 @@
 // Init helper
 void initialize() {
   
-  for(unsigned int i = 3; i <= 14; i++) {
+  for(unsigned int i = 3; i < 14; i++) {
     pinMode(i, OUTPUT);
     digitalWrite(i, HIGH);
-  }
-  
-  delay(2000);
-
-  for(unsigned int i = 3 ; i <= 14; i++) {
+    delay(500);
     digitalWrite(i, LOW);
   }
    
@@ -36,7 +32,15 @@ DcsBios::LED lightRwrSystestOn(LIGHT_RWR_SYSTEST_LED_ADDRESS, LIGHT_RWR_SYSTEST_
 DcsBios::LED lightRwrSystestDn(LIGHT_RWR_SYSTEST_LED_ADDRESS, LIGHT_RWR_SYSTEST_LED_MASK, 11);
 
 DcsBios::LED lightRwrShipUnkUp(LIGHT_RWR_SHIP_UNK_LED_ADDRESS, LIGHT_RWR_SHIP_UNK_LED_MASK, 12);
-DcsBios::LED lightRwrShipUnkDn(LIGHT_RWR_SHIP_UNK_LED_ADDRESS, LIGHT_RWR_SHIP_UNK_LED_MASK, A0);
+DcsBios::LED lightRwrShipUnkDn(LIGHT_RWR_SHIP_UNK_LED_ADDRESS, LIGHT_RWR_SHIP_UNK_LED_MASK, 13);
+
+// A0 - A5 are available, just enough for the buttons...
+DcsBios::Switch2Pos rwrHandoffBtn("RWR_HANDOFF_BTN", A1);
+DcsBios::Switch2Pos rwrModeBtn("RWR_MODE_BTN", A2);
+DcsBios::Switch2Pos rwrTBtn("RWR_T_BTN", A4);
+DcsBios::Switch2Pos rwrLaunchBtn("RWR_LAUNCH_BTN", A3);
+DcsBios::Switch2Pos rwrSysTestBtn("RWR_SYS_TEST_BTN", A0);
+DcsBios::Switch2Pos rwrUnknownShipBtn("RWR_UNKNOWN_SHIP_BTN", A5);
 
 void setup() {
   initialize();  

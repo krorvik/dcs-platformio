@@ -20,8 +20,8 @@ void initalize() {
 // Switches
 DcsBios::Switch3Pos epuSw("EPU_SW", 3, 4);
 DcsBios::Switch3Pos canopySw("CANOPY_SW", 5, 7);
-DcsBios::Switch2Pos canopyHandle("CANOPY_HANDLE", 8);
-DcsBios::Switch2Pos seatEjectSafe("SEAT_EJECT_SAFE", 6);
+DcsBios::Switch2Pos canopyHandle("CANOPY_HANDLE", 8, true);  // last param: invert switch 
+DcsBios::Switch2Pos seatEjectSafe("SEAT_EJECT_SAFE", 6, true);  // last param: invert switch
 DcsBios::Switch2Pos manualPitchSw("MANUAL_PITCH_SW", 9);
 
 // LEDs

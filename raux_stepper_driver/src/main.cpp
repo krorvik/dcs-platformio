@@ -6,13 +6,13 @@
 #include <common_data.h>
 #include <helpers.h>
 
-ViperStepper        compass_stepper ( 720,   0,  720, 800,  5000, 5);
-ViperStepper        fuel_fr_stepper ( 720,   0,  550, 800,  5000, 5);
-ViperStepper        fuel_al_stepper ( 720,   0,  550, 800,  5000, 5);
-ViperStepper        hyda_stepper    ( 720,   0,  630, 800,  5000, 5);
-ViperStepper        hydb_stepper    ( 720,   0,  630, 800,  5000, 5);
-ViperStepper        epu_stepper     ( 720,   0,  630, 800,  5000, 5);
-ViperStepper        oxy_stepper     ( 720,   0,  630, 800,  5000, 5);
+ViperStepper        compass_stepper ( 720,   0,  720, 1600,  50000, 5);
+ViperStepper        fuel_fr_stepper ( 720,   0,  500, 1600,  50000, 5);
+ViperStepper        fuel_al_stepper ( 720,   0,  500, 1600,  50000, 5);
+ViperStepper        hyda_stepper    ( 720,   0,  630, 1600,  50000, 5);
+ViperStepper        hydb_stepper    ( 720,   0,  630, 1600,  50000, 5);
+ViperStepper        epu_stepper     ( 720,   0,  550, 1600,  50000, 5);
+ViperStepper        oxy_stepper     ( 720,   0,  600, 1600,  50000, 5);
 
 // DCS callbacks
 void onHdgDegChange(unsigned int newValue)           { compass_stepper.moveToContinuous(newValue); }
@@ -38,6 +38,7 @@ DcsBios::IntegerBuffer fueltotalizer1kBuffer(FUELTOTALIZER_1K_GAUGE_ADDRESS , FU
 DcsBios::IntegerBuffer fueltotalizer10kBuffer(FUELTOTALIZER_10K_GAUGE_ADDRESS , FUELTOTALIZER_10K_GAUGE_MASK , FUELTOTALIZER_10K_GAUGE_SHIFTBY , onFueltotalizer10kChange);
 
 void setup() {
+  delay(2000);
   stepper_init();
   display_init();
   DcsBios::setup();
