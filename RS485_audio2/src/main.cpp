@@ -11,10 +11,11 @@ void initalize() {
   }
 }
 
-DcsBios::Potentiometer intercomKnb("INTERCOM_KNB", A0);
+/* DcsBios::Potentiometer intercomKnb("INTERCOM_KNB", A0);
 DcsBios::Potentiometer tacanKnb("TACAN_KNB", A1);
-DcsBios::Potentiometer ilsPwrKnb("ILS_PWR_KNB", A2);
-DcsBios::Switch3Pos hotMicSw("HOT_MIC_SW", 3,4);
+DcsBios::Potentiometer ilsPwrKnb("ILS_PWR_KNB", A2);*/
+
+// DcsBios::Switch3Pos hotMicSw("HOT_MIC_SW", 3,4);
 
 void setup() {
   initalize();

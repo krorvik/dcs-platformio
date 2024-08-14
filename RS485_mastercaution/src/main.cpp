@@ -5,7 +5,7 @@
 #include "f16c_data.h"
 
 void initalize() {
-  for (int i = 3; i < 8 ; i++) {
+  for (int i = 3; i < 8; i++) {
     pinMode(i, OUTPUT);
     digitalWrite(i, HIGH);
   }
@@ -13,14 +13,14 @@ void initalize() {
   for (int i = 3; i < 8; i++) {
     digitalWrite(i, LOW);
   }
-  for (int i = 9; i<= 10; i++) {
+  for (int i = 9; i<= 12; i++) {
     pinMode(i, INPUT_PULLUP);
   }
 }
 
 // Buttons
-DcsBios::Switch2Pos masterCaution("MASTER_CAUTION", 8);
-DcsBios::Switch2Pos fAckBtn("F_ACK_BTN", 9);
+DcsBios::Switch2Pos masterCaution("MASTER_CAUTION", 9);
+DcsBios::Switch2Pos fAckBtn("F_ACK_BTN", 8);
 DcsBios::Switch2Pos iffIdBtn("IFF_ID_BTN", 10);
 // LEDs
 DcsBios::LED lightMasterCaution1(LIGHT_MASTER_CAUTION_LED_ADDRESS, LIGHT_MASTER_CAUTION_LED_MASK, 3);

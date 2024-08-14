@@ -7,15 +7,16 @@
 
 const int bubble_min = 7;
 const int bubble_max = 121;
-
+int bubble = 32768;
+int turnrate = 32768;
+ 
 const int dev_xmin = 0;
 const int dev_xmax = 128;
 
 const unsigned int arrow = 0x25bc;
 const unsigned int dot = 0x25cf;
 
-int bubble = 32768;
-int turnrate = 32768;
+
 
 // altimeter multipliers, long because summing these may result in > 16bit values
 long alt_100_steps = 0;
@@ -27,7 +28,6 @@ ViperStepper        airspeed_stepper ( 720,    0,  720,  1600,  50000, 5);
 ViperStepper        altimeter_stepper( 720,    0,  720,  1600,  50000, 5);
 ViperStepper        aoa_stepper      (1010,    0, 1100,  1600,  50000, 10); // mid pos for aos is 22500 (raw dcs).
 ViperStepper        vvi_stepper      (1010,    0, 1010,  1600,  50000, 10); // mid pos for vvi is 36200 (raw dcs)
-
 ViperStepper        adi_pitch_stepper( 340,  0,  340, 1600,  5000, 5);
 ViperStepper        adi_bank_stepper ( 200, 0,   200, 1600,  2000, 1);
 

@@ -8,15 +8,15 @@
 #define FLOOD_CONSOLE_OUT 10
 #define FLOOD_INSTR_OUT 11 
 
-void onPriConsolesBrtKnbChange(unsigned int newValue) { analogWrite(PRI_CONSOLE_OUT, map(newValue, 0, 65535, 0, 255)); }
-void onPriInstPnlBrtKnbChange(unsigned int newValue) { analogWrite(PRI_INSTR_OUT, map(newValue, 0, 65535, 0, 255)); }
-void onFloodConsolesBrtKnbChange(unsigned int newValue) { analogWrite(FLOOD_CONSOLE_OUT, map(newValue, 0, 65535, 0, 255)); }
-void onFloodInstPnlBrtKnbChange(unsigned int newValue) { analogWrite(FLOOD_INSTR_OUT, map(newValue, 0, 65535, 0, 255)); }
+void onPriConsolesBrtKnbChange(unsigned int newValue)   { analogWrite(PRI_CONSOLE_OUT,   map(newValue, 0, 65535, 0, 255));   }
+void onPriInstPnlBrtKnbChange(unsigned int newValue)    { analogWrite(PRI_INSTR_OUT,     map(newValue, 0, 65535, 0, 255));   } 
+void onFloodConsolesBrtKnbChange(unsigned int newValue) { analogWrite(FLOOD_CONSOLE_OUT, map(newValue, 0, 65535, 0, 255));   }
+void onFloodInstPnlBrtKnbChange(unsigned int newValue)  { analogWrite(FLOOD_INSTR_OUT,   map(newValue, 0, 65535, 0, 255));   }
 
-DcsBios::IntegerBuffer priConsolesBrtKnbBuffer(PRI_CONSOLES_BRT_KNB_LIMITDIAL_ADDRESS, PRI_CONSOLES_BRT_KNB_LIMITDIAL_MASK, PRI_CONSOLES_BRT_KNB_LIMITDIAL_SHIFTBY, onPriConsolesBrtKnbChange);
-DcsBios::IntegerBuffer priInstPnlBrtKnbBuffer(PRI_INST_PNL_BRT_KNB_LIMITDIAL_ADDRESS, PRI_INST_PNL_BRT_KNB_LIMITDIAL_MASK, PRI_INST_PNL_BRT_KNB_LIMITDIAL_SHIFTBY, onPriInstPnlBrtKnbChange);
-DcsBios::IntegerBuffer floodConsolesBrtKnbBuffer(FLOOD_CONSOLES_BRT_KNB_LIMITDIAL_ADDRESS, FLOOD_CONSOLES_BRT_KNB_LIMITDIAL_MASK, FLOOD_CONSOLES_BRT_KNB_LIMITDIAL_SHIFTBY, onFloodConsolesBrtKnbChange);
-DcsBios::IntegerBuffer floodInstPnlBrtKnbBuffer(FLOOD_INST_PNL_BRT_KNB_LIMITDIAL_ADDRESS, FLOOD_INST_PNL_BRT_KNB_LIMITDIAL_MASK, FLOOD_INST_PNL_BRT_KNB_LIMITDIAL_SHIFTBY, onFloodInstPnlBrtKnbChange);
+DcsBios::IntegerBuffer priConsolesBrtKnbBuffer  (LIGHT_CONSLES_GAUGE_ADDRESS,        LIGHT_CONSLES_GAUGE_MASK,        LIGHT_CONSLES_GAUGE_SHIFTBY,        onPriConsolesBrtKnbChange);
+DcsBios::IntegerBuffer priInstPnlBrtKnbBuffer   (LIGHT_INST_PNL_GAUGE_ADDRESS,       LIGHT_INST_PNL_GAUGE_MASK,       LIGHT_INST_PNL_GAUGE_SHIFTBY,       onPriInstPnlBrtKnbChange);
+DcsBios::IntegerBuffer floodConsolesBrtKnbBuffer(LIGHT_CONSLES_FLOOD_GAUGE_ADDRESS,  LIGHT_CONSLES_FLOOD_GAUGE_MASK,  LIGHT_CONSLES_FLOOD_GAUGE_SHIFTBY,  onFloodConsolesBrtKnbChange);
+DcsBios::IntegerBuffer floodInstPnlBrtKnbBuffer (LIGHT_INST_PNL_FLOOD_GAUGE_ADDRESS, LIGHT_INST_PNL_FLOOD_GAUGE_MASK, LIGHT_INST_PNL_FLOOD_GAUGE_SHIFTBY, onFloodInstPnlBrtKnbChange);
 
 void reset(unsigned int level) {
   analogWrite(PRI_CONSOLE_OUT, level);
@@ -26,11 +26,10 @@ void reset(unsigned int level) {
 }
 
 void blink()  {
-  for (unsigned i = 0; i < 10; i++) {
+  for (unsigned i = 0; i < 5; i++) {
     reset(255);
-    delay(500);
+    delay(1000);
     reset(0);
-    delay(500);
   }
 }
 
@@ -39,8 +38,7 @@ void setup() {
   pinMode(PRI_INSTR_OUT, OUTPUT);
   pinMode(FLOOD_CONSOLE_OUT, OUTPUT);
   pinMode(FLOOD_INSTR_OUT, OUTPUT);  
-  //blink();
-  reset(128);
+  blink();
   DcsBios::setup();
 }
 

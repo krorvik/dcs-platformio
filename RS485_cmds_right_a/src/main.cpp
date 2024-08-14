@@ -25,13 +25,10 @@ void initialize() {
   for(unsigned int i = A0; i <= A5; i++) {
     pinMode(i, OUTPUT);
     digitalWrite(i, HIGH);
-  }
- 
-  delay(2000);
-  
-  for(unsigned int i = A0; i <= A5; i++) {
+    delay(1000);
     digitalWrite(i, LOW);
   }
+ 
 }
 
 

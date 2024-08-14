@@ -75,7 +75,7 @@ DcsBios::Switch2Pos ecmBitBtn("ECM_BIT_BTN", 48); // OK
 DcsBios::Switch2Pos ecmResetBtn("ECM_RESET_BTN", 52);
 
 // Dim
-DcsBios::Potentiometer ecmDimKnb("ECM_DIM_KNB", A0); // OK
+// DcsBios::Potentiometer ecmDimKnb("ECM_DIM_KNB", A0); // OK
 
 void initialize() {
   for (int i = 4; i<36; i++) {

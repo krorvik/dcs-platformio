@@ -1,19 +1,6 @@
-// Original credit:
-// F-16 DED for DCS BIOS using 256x64 ER-OLED032-1G from BuyDisplay.com
-// Final code by Wiggles5289 and a whole lotta cred to Fusion on the DCS Forums.
-
-// My (Kenneth Rorvik) changes:
-// Add outputs for right eyebrow lights.
-// Another type of display - 192 x 64 https://www.aliexpress.com/item/4000870410380.html?spm=a2g0o.order_list.0.0.21ef18022PwgPe
-// Remove unused import
-
-// We use RS485, so this is way to go. Number must be unique across clients.
 #define DCSBIOS_RS485_SLAVE 5
 #define TXENABLE_PIN 2
 #include "DcsBios.h"
-// Hardwired into RS485/nano/pro mini PCBs
-
-// No comment needed ;)
 
 // Graphics
 #include <U8g2lib.h>
@@ -22,19 +9,28 @@
 #include <SPI.h>
 #include "f16c_data.h"
 
-// Yeah, started with 12 instead of A2, and that pin is one of the SPI pins. Moved to A2.
-const int eyebrowpins[8] = { 6, 7, 8, 9, 10, A2, A0, A1};
+#define RDY_PIN 6
+#define NWS_PIN 3
+#define DISC_PIN 5
+#define NWS_POT_PIN A0
 
 // Display type determined by this one.
-// Hardware SPI arduino nano, pin 11 is SDA (MOSI), 13 is SCK.
+// Hardware SPI arduino nano, pin 11 is SDA (MOSI), 13 is SCK'.
 // parameters are rotation, and pins CS/SS, DC, RST.
-U8G2_UC1609_SLG19264_2_4W_HW_SPI DED(U8G2_R0, /* cs=*/ 3, /* dc=*/ 4, /* reset=*/ 5);
+// We need PWM on 3, 5, 6 - so we map display here to 7,8,9
+U8G2_UC1609_SLG19264_2_4W_HW_SPI DED(U8G2_R0, /* cs=*/ 7, /* dc=*/ 8, /* reset=*/ 9);
 
 char* line1;
 char* line2;
 char* line3; 
 char* line4;
 char* line5;
+
+// Indexer data
+unsigned int nws_brightness = 255;
+unsigned int RDY = 0;
+unsigned int NWS = 0;
+unsigned int DISC = 0;
 
 // Current best font for DED by community here:
 // https://forum.dcs.world/topic/261806-f16-ded-with-ssd1322-and-dcs-bios/page/3/
@@ -80,6 +76,17 @@ const u8g_fntpgm_uint8_t DEDfont16px[1148] U8G_FONT_SECTION("DEDfont16px") =
   "\0z\11v\31\61\214\62\35\15{\14\265\371\360D\62%E\65E\1|\7\302\353\60>\14}\15\265"
   "\372\60\204\62E%\65%\31\0~\12\70xqf\23\311l\2\0\0\0\4\377\377\0";
 
+void drawTest() {
+  DED.firstPage();
+  do {    
+    DED.drawStr(0, 12.8, "DCS");
+    DED.drawStr(0, 25.6, "F-16C");
+    DED.drawStr(0, 38.4, "Block 50");
+    DED.drawStr(0, 51.2, "---");
+    DED.drawStr(0, 64, "READY!");
+  } while ( DED.nextPage() );
+  DED.updateDisplay();
+}
 
 void drawDED() {
   DED.firstPage();
@@ -93,62 +100,77 @@ void drawDED() {
   DED.updateDisplay();
 }
 
+// Indexer callbacks
+void onLightRdyChange(unsigned int newValue) { RDY = newValue; }
+void onLightArNwsChange(unsigned int newValue) { NWS = newValue; }
+void onLightDiscChange(unsigned int newValue) { DISC = newValue; }
+
+void onArStatusBrtKnbChange(unsigned int newValue) { nws_brightness = map(newValue, 0, 65535, 0, 255); }
+
 // DED Callbacks called from DCS bios simply set values in variables.
 void onDedLine1Change(char* newValue) {
   line1 = newValue;
-  drawDED();
+  // drawDED();
 }
 void onDedLine2Change(char* newValue) {
   line2 = newValue;
-  drawDED();
+  // drawDED();
 }
 void onDedLine3Change(char* newValue) {
   line3 = newValue;
-  drawDED();
+  // drawDED();
 }
 void onDedLine4Change(char* newValue) {
   line4 = newValue;
-  drawDED();
+  // drawDED();
 }
 void onDedLine5Change(char* newValue) {
   line5 = newValue;
+  // drawDED();
+}
+
+void onUpdateCounterChange(unsigned int newValue) {
+  analogWrite(RDY_PIN, RDY * nws_brightness);
+  analogWrite(NWS_PIN, NWS * nws_brightness);
+  analogWrite(DISC_PIN, DISC * nws_brightness);
   drawDED();
 }
 
-// Register callbacks for DED
+// DCS Bios buffers
+// Controls DCS brightness lever
+DcsBios::Potentiometer arStatusBrtKnb("AR_STATUS_BRT_KNB", NWS_POT_PIN);
+// Reads back light values from DCS
+DcsBios::IntegerBuffer lightRdyBuffer(LIGHT_RDY_LED_ADDRESS, LIGHT_RDY_LED_MASK, LIGHT_RDY_LED_SHIFTBY, onLightRdyChange);
+DcsBios::IntegerBuffer lightArNwsBuffer(LIGHT_AR_NWS_LED_ADDRESS, LIGHT_AR_NWS_LED_MASK, LIGHT_AR_NWS_LED_SHIFTBY, onLightArNwsChange);
+DcsBios::IntegerBuffer lightDiscBuffer(LIGHT_DISC_LED_ADDRESS, LIGHT_DISC_LED_MASK, LIGHT_DISC_LED_SHIFTBY, onLightDiscChange);
 DcsBios::StringBuffer<29> dedLine1Buffer(DED_LINE_1_DISPLAY_ADDRESS, onDedLine1Change);
 DcsBios::StringBuffer<29> dedLine2Buffer(DED_LINE_2_DISPLAY_ADDRESS, onDedLine2Change);
 DcsBios::StringBuffer<29> dedLine3Buffer(DED_LINE_3_DISPLAY_ADDRESS, onDedLine3Change);
 DcsBios::StringBuffer<29> dedLine4Buffer(DED_LINE_4_DISPLAY_ADDRESS, onDedLine4Change);
 DcsBios::StringBuffer<29> dedLine5Buffer(DED_LINE_5_DISPLAY_ADDRESS, onDedLine5Change);
+DcsBios::IntegerBuffer UpdateCounterBuffer(0xfffe, 0x00ff, 0, onUpdateCounterChange);
 
-// Add right eyebrow lights, pins D6-D10, D12, A0-A1. Simple DCS Bios LEDs to pins.
-DcsBios::LED LIGHT_ENGINE ( LIGHT_ENGINE_LED_ADDRESS ,  LIGHT_ENGINE_LED_MASK , eyebrowpins[0]);
-DcsBios::LED LIGHT_ENG_FIRE ( LIGHT_ENG_FIRE_LED_ADDRESS ,  LIGHT_ENG_FIRE_LED_MASK , eyebrowpins[1]);
-DcsBios::LED LIGHT_HYD_OIL_PRESS ( LIGHT_HYD_OIL_PRESS_LED_ADDRESS ,  LIGHT_HYD_OIL_PRESS_LED_MASK , eyebrowpins[2]);
-DcsBios::LED LIGHT_DBU_ON ( LIGHT_DBU_ON_LED_ADDRESS ,  LIGHT_DBU_ON_LED_MASK , eyebrowpins[3]);
-DcsBios::LED LIGHT_FLCS ( LIGHT_FLCS_LED_ADDRESS ,  LIGHT_FLCS_LED_MASK , eyebrowpins[4]);
-DcsBios::LED LIGHT_TO_LDG_CONFIG ( LIGHT_TO_LDG_CONFIG_LED_ADDRESS ,  LIGHT_TO_LDG_CONFIG_LED_MASK , eyebrowpins[5]);
-DcsBios::LED LIGHT_OXY_LOW ( LIGHT_OXY_LOW_LED_ADDRESS ,  LIGHT_OXY_LOW_LED_MASK , eyebrowpins[6]);
-DcsBios::LED LIGHT_CANOPY ( LIGHT_CANOPY_LED_ADDRESS ,  LIGHT_CANOPY_LED_MASK , eyebrowpins[7]);
+void flashLEDs() {
+  // Flash LEDs
+  analogWrite(RDY_PIN, 255);
+  delay(2000);
+  analogWrite(RDY_PIN, 0);
+  analogWrite(NWS_PIN, 255);
+  delay(2000);
+  analogWrite(NWS_PIN, 0);
+  analogWrite(DISC_PIN, 255);
+  delay(2000);
+  analogWrite(DISC_PIN, 0);
+}
 
 void setup() {
-  // Eyebrow lights init, light up a couple of seconds
-  for (int index = 0; index < 8; index++) {
-    pinMode(eyebrowpins[index], OUTPUT);
-    digitalWrite(eyebrowpins[index], HIGH);
-  }
-
+  flashLEDs();
   // init DED
   DED.begin();
   DED.clearBuffer();
-  DED.setFont(DEDfont16px);
+  DED.setFont(DEDfont16px);  
   delay(2000);
-  // Eyebrow Lights off
-  for (int index = 0; index < 8; index++) {
-    digitalWrite(eyebrowpins[index], LOW);
-  }
-  // Needs no comment? ;)
+  drawTest();
   DcsBios::setup();
 }
 

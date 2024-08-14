@@ -4,12 +4,8 @@
 #include "f16c_data.h"
 
 void initalize() {
-  for (int i = 3; i < 10; i++) {
-    pinMode(i, INPUT_PULLUP);
-  }
-
   // Flash leds
-  for (int i = 10; i<= 12; i++) {
+  for (int i = 5; i<= 7; i++) {
     pinMode(i, OUTPUT);
     digitalWrite(i, HIGH);
     delay(1000);
@@ -19,15 +15,15 @@ void initalize() {
 
 // Switches
 DcsBios::Switch3Pos epuSw("EPU_SW", 3, 4);
-DcsBios::Switch3Pos canopySw("CANOPY_SW", 5, 7);
-DcsBios::Switch2Pos canopyHandle("CANOPY_HANDLE", 8, true);  // last param: invert switch 
-DcsBios::Switch2Pos seatEjectSafe("SEAT_EJECT_SAFE", 6, true);  // last param: invert switch
-DcsBios::Switch2Pos manualPitchSw("MANUAL_PITCH_SW", 9);
+//DcsBios::Switch3Pos canopySw("CANOPY_SW", 5, 7);
+//DcsBios::Switch2Pos canopyHandle("CANOPY_HANDLE", 8, true);  // last param: invert switch 
+//DcsBios::Switch2Pos seatEjectSafe("SEAT_EJECT_SAFE", 6, true);  // last param: invert switch
+//DcsBios::Switch2Pos manualPitchSw("MANUAL_PITCH_SW", 9);
 
 // LEDs
-DcsBios::LED lightAir(LIGHT_AIR_LED_ADDRESS, LIGHT_AIR_LED_MASK, 10);
-DcsBios::LED lightHydrazn(LIGHT_HYDRAZN_LED_ADDRESS, LIGHT_HYDRAZN_LED_MASK, 11);
-DcsBios::LED lightEpu(LIGHT_EPU_LED_ADDRESS, LIGHT_EPU_LED_MASK, 12);
+DcsBios::LED lightHydrazn(LIGHT_HYDRAZN_LED_ADDRESS, LIGHT_HYDRAZN_LED_MASK, 5);
+DcsBios::LED lightAir(LIGHT_AIR_LED_ADDRESS, LIGHT_AIR_LED_MASK, 6);
+DcsBios::LED lightEpu(LIGHT_EPU_LED_ADDRESS, LIGHT_EPU_LED_MASK, 7);
 
 void setup() {
   initalize();

@@ -27,20 +27,27 @@ void displays_init() {
 
 void onUhfChanDispChange(char* newValue) {
   if (strcmp(newValue, "**") == 0) {
-    chan_display.showString("--");
-  } else if ((strcmp(newValue, "  ") == 0) or (strcmp(newValue, "00") == 0)) {
-    chan_display.clear();
+    chan_display.showString("88");
+  } else {
+    int chanval = atoi(newValue);
+    if (chanval > 0) {      
+      chan_display.showNumber(chanval);
+    } else {
+      chan_display.clear();
+    }
   }
-  chan_display.showNumber(atoi(newValue));
+
 }
 void onUhfFreqDispChange(char* newValue) {
   if (strcmp(newValue, "***.***") == 0) { 
-    freq_display.showString("      ");
-  } else if ((strcmp(newValue, "      ") == 0) or (strcmp(newValue, "000000") == 0)) {
-    freq_display.clear();
+    freq_display.showString("888888");
   } else {
-    float value = atof(newValue);
-    freq_display.showNumber(value);
+    double freqval = atof(newValue);
+    if (freqval > 0) {
+      freq_display.showNumber(freqval);
+    } else {
+      freq_display.clear();
+    }
   }
 }
 
