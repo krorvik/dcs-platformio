@@ -80,6 +80,7 @@ DcsBios::Switch3Pos abResetSw("AB_RESET_SW", 3, 4);
 DcsBios::Switch2Pos maxPwrSw("MAX_PWR_SW", 5);
 DcsBios::Switch3Pos jfsSw("JFS_SW", 9, 8);
 DcsBios::LED lightJfsRun(LIGHT_JFS_RUN_LED_ADDRESS, LIGHT_JFS_RUN_LED_MASK, 10);
+DcsBios::Switch2Pos manpitch("MANUAL_PITCH_SW", 11);
 
 void initalize() {
   pinMode(6, INPUT_PULLUP);

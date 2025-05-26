@@ -46,7 +46,7 @@ void altimeter_stepper_init() {
   altimeter_stepper->setCurrentPosition(0);
 }
 
-void adjust_altimeter() {
+void adjust_altimeter(ESPRotary& encoder) {
   long newpos = altimeter_encoder.getPosition(); 
   int diff = encoder_position - newpos;
   encoder_position = newpos;

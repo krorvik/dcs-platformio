@@ -3,7 +3,7 @@
 #include <DcsBios.h>
 #include "f16c_data.h"
 
-unsigned int pins[16] = { 3,4,5,6,7,8,9,10,11,12,13,A0,A1,A2,A3,A4};
+unsigned int pins[16] = { 11,12,A0,A1,A2,A3,A4,A5, 3,4,5,6,7,8,9,10};
 
 DcsBios::LED LIGHT_AVIONICS_FAULT ( LIGHT_AVIONICS_FAULT_LED_ADDRESS ,  LIGHT_AVIONICS_FAULT_LED_MASK , pins[0]);
 DcsBios::LED LIGHT_EQUIP_HOT ( LIGHT_EQUIP_HOT_LED_ADDRESS ,  LIGHT_EQUIP_HOT_LED_MASK , pins[1]);

@@ -47,7 +47,7 @@ void bank_stepper_init() {
   bank_stepper->setCurrentPosition(32768);
 }
 
-void adjust_axes() {
+void adjust_axes(ESPRotary &encode) {
   unsigned int stepperindex = button_presses % 2;
   FastAccelStepper *stepper = stepperselector[stepperindex];
   int multiplier = 5;

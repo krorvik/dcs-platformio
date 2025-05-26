@@ -40,8 +40,8 @@ DcsBios::IntegerBuffer lightAoaUpBuffer(LIGHT_AOA_UP_LED_ADDRESS, LIGHT_AOA_UP_L
 DcsBios::Switch2Pos masterCaution("MASTER_CAUTION", 7);
 DcsBios::Switch2Pos fAckBtn("F_ACK_BTN", 8);
 DcsBios::Switch2Pos iffIdBtn("IFF_ID_BTN", 9);
-DcsBios::LED lightMasterCaution4(LIGHT_MASTER_CAUTION_LED_ADDRESS, LIGHT_MASTER_CAUTION_LED_MASK, 10);
-DcsBios::LED lightTfFail(LIGHT_TF_FAIL_LED_ADDRESS, LIGHT_TF_FAIL_LED_MASK, 11);
+DcsBios::LED lightMasterCaution4(LIGHT_MASTER_CAUTION_LED_ADDRESS, LIGHT_MASTER_CAUTION_LED_MASK, 10, true);
+DcsBios::LED lightTfFail(LIGHT_TF_FAIL_LED_ADDRESS, LIGHT_TF_FAIL_LED_MASK, 11, true);
 DcsBios::IntegerBuffer UpdateCounterBuffer(0xfffe, 0x00ff, 0, onUpdateCounterChange);
 
 // Very verbose, but easy to tune

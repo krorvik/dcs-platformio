@@ -19,7 +19,7 @@ void displays_init() {
   chan_display.clear();
   freq_display.clear();
   chan_display.showNumber(88);
-  freq_display.showNumber(888.888);
+  freq_display.showNumber(888888);
   delay(3000);
   chan_display.clear();
   freq_display.clear();
