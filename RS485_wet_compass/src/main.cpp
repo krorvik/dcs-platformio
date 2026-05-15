@@ -50,12 +50,6 @@ const u8g_fntpgm_uint8_t DEDfont16px[1148] U8G_FONT_SECTION("DEDfont16px") =
   "\372\60\204\62E%\65%\31\0~\12\70xqf\23\311l\2\0\0\0\4\377\377\0";
 
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C display(U8G2_R0);
-
-void onHdgDegChange(unsigned int newValue) {  
-}
-
-DcsBios::IntegerBuffer hdgDegBuffer(COMMON_HEADING_ADDRESS, COMMON_HEADING_MASK, COMMON_HEADING_SHIFTBY, onHdgDegChange);
-
 // WANT "W-SW-S-SE-E-NE-N-NW" scale, where 255 px is a full circle
 void drawScale(unsigned x) {
   int x_offset_A = -255 + FONT_OFFSET_X + map(x, 0,65535, 0, 255);
@@ -150,12 +144,21 @@ void drawInit() {
   display.updateDisplay(); 
 }
 
+void onHdgDegChange(unsigned int newValue) {
+  drawScale(newValue);
+}
+
+// Addresses not in my old autogen headers, see: 
+// https://github.com/DCS-Skunkworks/dcs-bios/pull/713/commits/1adaa6714327507174d0c787d0bf31f7b565e04c 
+DcsBios::IntegerBuffer hdgDegBuffer(0x45D8, 0xFFFF, 0, onHdgDegChange);
+
+
 void setup() {
   display.begin();
   display.clearBuffer();
   display.setContrast(64);
   display.setFont(u8g2_font_inr19_mf);  
-  scroll();
+  drawScale(0);
   DcsBios::setup();
 }
 

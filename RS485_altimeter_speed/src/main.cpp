@@ -12,6 +12,9 @@
 #define ENCODER_PINB 4
 #define ENCODER_BUTTON_PIN 5
 
+#define SPEED 5000
+#define ACCEL 5000
+
 // helper variables
 int encoder_position = 0;
 unsigned int button_presses = 0;
@@ -29,20 +32,22 @@ Button2 encoder_button;
 
 void airspeed_stepper_init() {
   airspeed_stepper = stepper_engine.stepperConnectToPin(9);
-  airspeed_stepper->setDirectionPin(11);
-  airspeed_stepper->setSpeedInHz(6400);
-  airspeed_stepper->setAcceleration(6400);
+  airspeed_stepper->setDirectionPin(11, false);
+  airspeed_stepper->setSpeedInHz(SPEED);
+  airspeed_stepper->setAcceleration(ACCEL);
   // Backsweep airspeed to reset
-  airspeed_stepper->move(-5760);
+  airspeed_stepper->move(-7200);
   while (airspeed_stepper->isRunning()) {}
   airspeed_stepper->setCurrentPosition(0);
 }
 
 void altimeter_stepper_init() {
   altimeter_stepper = stepper_engine.stepperConnectToPin(10);
-  altimeter_stepper->setDirectionPin(12);
-  altimeter_stepper->setSpeedInHz(6400);
-  altimeter_stepper->setAcceleration(6400);
+  altimeter_stepper->setDirectionPin(12, false);
+  altimeter_stepper->setSpeedInHz(SPEED);
+  altimeter_stepper->setAcceleration(ACCEL);
+  altimeter_stepper->move(-7200);
+  while (altimeter_stepper->isRunning()) {}
   altimeter_stepper->setCurrentPosition(0);
 }
 

@@ -6,15 +6,15 @@
 
 // Stepper defs, speed and accel are same (VID2x)
 #define SPEED 5000 // About a second for a sweep ;)
-#define ACCELERATION 65535
+#define ACCELERATION 5000
 // Range of pin in steps, per instrument
 #define RPM_STEPS_MAX  4960  // 590 * 8 = 4720
 #define FTIT_STEPS_MAX  5360  // 500 * 8 = 4000
 // Ardiuno pins - always the same pairs
-#define RPM_STEP_PIN 10
-#define RPM_DIR_PIN 12
-#define FTIT_STEP_PIN 9
-#define FTIT_DIR_PIN 11
+#define RPM_STEP_PIN 9
+#define RPM_DIR_PIN 11
+#define FTIT_STEP_PIN 10
+#define FTIT_DIR_PIN 12
 
 FastAccelStepperEngine stepper_engine = FastAccelStepperEngine();
 

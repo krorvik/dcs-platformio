@@ -1,6 +1,6 @@
 // For RS485
 #define DCSBIOS_RS485_SLAVE 10
-#define TXENABLE_PIN 2
+#define TXENABLE_PIN 3
 #include "DcsBios.h"
 #include "f16c_data.h"  // This is a generated header with all addresses. Rewriting this file is not fun. 
 
@@ -75,7 +75,7 @@ DcsBios::Switch2Pos ecmBitBtn("ECM_BIT_BTN", 48); // OK
 DcsBios::Switch2Pos ecmResetBtn("ECM_RESET_BTN", 52);
 
 // Dim
-// DcsBios::Potentiometer ecmDimKnb("ECM_DIM_KNB", A0); // OK
+DcsBios::Potentiometer ecmDimKnb("ECM_DIM_KNB", A0); 
 
 void initialize() {
   for (int i = 4; i<36; i++) {

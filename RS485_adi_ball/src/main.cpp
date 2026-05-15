@@ -9,8 +9,8 @@
 #define ENCODER_PINA 3
 #define ENCODER_PINB 4
 #define ENCODER_BUTTON_PIN 5
-#define PITCH_MAX 5400
-#define PITCH_MIN -5500
+#define PITCH_MAX 560
+#define PITCH_MIN -560
 
 // helper variables
 long last_bank_position = 0;
@@ -32,7 +32,7 @@ FastAccelStepper *stepperselector[2];
 void pitch_stepper_init() {
   pitch_stepper = stepper_engine.stepperConnectToPin(9);
   stepperselector[0] = pitch_stepper;
-  pitch_stepper->setDirectionPin(11);
+  pitch_stepper->setDirectionPin(11, false);
   pitch_stepper->setSpeedInHz(4000);
   pitch_stepper->setAcceleration(4000);
   pitch_stepper->setCurrentPosition(0);
@@ -41,20 +41,16 @@ void pitch_stepper_init() {
 void bank_stepper_init() {
   bank_stepper = stepper_engine.stepperConnectToPin(10);
   stepperselector[1] = bank_stepper;
-  bank_stepper->setDirectionPin(12);
-  bank_stepper->setSpeedInHz(1600);
-  bank_stepper->setAcceleration(2000);
-  bank_stepper->setCurrentPosition(32768);
+  bank_stepper->setDirectionPin(12, false);
+  bank_stepper->setSpeedInHz(4000);
+  bank_stepper->setAcceleration(4000);
+  bank_stepper->setCurrentPosition(0);
 }
 
 void adjust_axes(ESPRotary &encode) {
   unsigned int stepperindex = button_presses % 2;
   FastAccelStepper *stepper = stepperselector[stepperindex];
-  int multiplier = 5;
-  // Move more if we're pitch stepper
-  if (stepperindex == 0) {
-    multiplier = 25;
-  }
+  int multiplier = -1;
   long newpos = adjust_encoder.getPosition(); 
   long diff = encoder_position - newpos;
   encoder_position = newpos;
@@ -63,9 +59,27 @@ void adjust_axes(ESPRotary &encode) {
 
 // Short clicks change needle speed when encoder turns
 void handle_encoder_click(Button2& b) {
-  // Do stuff
   // bump presses last
   button_presses += 1;
+}
+
+void debug_sweep() {
+  pitch_stepper->setCurrentPosition(0);
+  bank_stepper->setCurrentPosition(0);
+  bank_stepper->moveTo(800);
+  delay(3000);
+  bank_stepper->moveTo(-800);
+  delay(3000);
+  bank_stepper->moveTo(0);
+  delay(3000);
+  pitch_stepper->moveTo(PITCH_MAX);
+  delay(3000);
+  pitch_stepper->moveTo(PITCH_MIN);
+  delay(3000);
+  pitch_stepper->moveTo(0);
+  delay(3000);
+  pitch_stepper->setCurrentPosition(0);
+  bank_stepper->setCurrentPosition(0);
 }
 
 void handle_encoder_longpress (Button2& b) {
@@ -78,13 +92,9 @@ void handle_encoder_longpress (Button2& b) {
     delay(1000);
     bank_stepper->move(-100);
   } else {
-    bank_stepper->move(-100);
-    while (bank_stepper->isRunning()) {}
-    delay(1000);
-    bank_stepper->move(100);
-    while (bank_stepper->isRunning()) {}
     bank_stepper->setCurrentPosition(0);
     pitch_stepper->setCurrentPosition(0);
+    debug_sweep();
   }
 }
 

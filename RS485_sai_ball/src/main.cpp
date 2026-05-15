@@ -5,7 +5,6 @@
 #include "FastAccelStepper.h"
 #include "ESPRotary.h"
 #include "Button2.h"
-#include "Adafruit_SSD1306.h"
 
 // Controls pins
 #define ENCODER_PINA 3
@@ -13,10 +12,10 @@
 #define ENCODER_BUTTON_PIN 5
 
 // Stepper pins
-#define PITCH_STEP_PIN 9
-#define PITCH_DIR_PIN 11
-#define BANK_STEP_PIN 10
-#define BANK_DIR_PIN 12
+#define PITCH_STEP_PIN 10
+#define PITCH_DIR_PIN 12
+#define BANK_STEP_PIN 9
+#define BANK_DIR_PIN 11
 
 // Stepper max/mins, start pos and speed
 #define PITCH_MAX 600
@@ -25,14 +24,8 @@
 #define BANK_MAX 800
 #define BANK_MIN -800
 #define BANK_DCSBIOS_START 32768
-#define STEPPER_SPEED 25000
-#define STEPPER_ACCEL 35000
-
-// Display defs
-#define DISPLAY_WIDTH 128 // OLED display width, in pixels
-#define DISPLAY_HEIGHT 32 // OLED display height, in pixels
-#define OLED_RESET -1 
-#define DISPLAY_ADDRESS 0x3C
+#define STEPPER_SPEED 4000
+#define STEPPER_ACCEL 4000
 
 // helper variables
 long last_bank_position = 0;
@@ -42,14 +35,12 @@ long bankRotations = 0;
 int encoder_position = 0;
 unsigned int button_presses = 0;
 boolean init_state = true;
-char fuelflow_chars[6] = {'0', '0', '0', '0', '0', '\0'};
 
 FastAccelStepperEngine stepper_engine = FastAccelStepperEngine();
 FastAccelStepper *pitch_stepper = NULL;
 FastAccelStepper *bank_stepper = NULL;
 ESPRotary adjust_encoder(ENCODER_PINA, ENCODER_PINB);
 Button2 encoder_button;
-Adafruit_SSD1306 display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 FastAccelStepper *stepperselector[2];
 
 int translate_digit(unsigned int value) {
@@ -65,19 +56,10 @@ int translate_digit(unsigned int value) {
   return 9;
 }
 
-void display_fuelflow(unsigned int newValue) {
-  display.clearDisplay();
-  display.setTextSize(4);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(2,5);
-  display.println(fuelflow_chars);
-  display.display();
-}
-
 void pitch_stepper_init() {
   pitch_stepper = stepper_engine.stepperConnectToPin(PITCH_STEP_PIN);
   stepperselector[0] = pitch_stepper;
-  pitch_stepper->setDirectionPin(PITCH_DIR_PIN);
+  pitch_stepper->setDirectionPin(PITCH_DIR_PIN, false); // false to switch directions
   pitch_stepper->setSpeedInHz(STEPPER_SPEED);
   pitch_stepper->setAcceleration(STEPPER_ACCEL);
   pitch_stepper->setCurrentPosition(PITCH_DCSBIOS_START);
@@ -86,7 +68,7 @@ void pitch_stepper_init() {
 void bank_stepper_init() {
   bank_stepper = stepper_engine.stepperConnectToPin(BANK_STEP_PIN);
   stepperselector[1] = bank_stepper;
-  bank_stepper->setDirectionPin(BANK_DIR_PIN);
+  bank_stepper->setDirectionPin(BANK_DIR_PIN, false); // false to switch directions
   bank_stepper->setSpeedInHz(STEPPER_SPEED );
   bank_stepper->setAcceleration(STEPPER_ACCEL);
   bank_stepper->setCurrentPosition(BANK_DCSBIOS_START);
@@ -98,7 +80,7 @@ void adjust_axes(ESPRotary &encoder) {
   long newpos = adjust_encoder.getPosition(); 
   long diff = encoder_position - newpos;
   encoder_position = newpos;
-  stepper->move(diff * 2);
+  stepper->move(diff * -2);
 }
 
 // Short clicks change needle speed when encoder turns
@@ -123,7 +105,7 @@ void handle_encoder_longpress (Button2& b) {
     bank_stepper->move(100);
     while (bank_stepper->isRunning()) {}
     // Uncage SAI
-    sendDcsBiosMessage("SAI_CAGE", "1");    
+    // sendDcsBiosMessage("SAI_CAGE", "1");
     bank_stepper->setCurrentPosition(0);
     pitch_stepper->setCurrentPosition(0);
   }
@@ -154,17 +136,11 @@ void onAdiPitchChange(unsigned int newValue) {
   }
 }
 
-void onFuelflowcounter100Change(unsigned int newValue)   { fuelflow_chars[2] = '0' + translate_digit(newValue); }
-void onFuelflowcounter1kChange(unsigned int newValue)    { fuelflow_chars[1] = '0' + translate_digit(newValue); }
-void onFuelflowcounter10kChange(unsigned int newValue)   { fuelflow_chars[0] = '0' + translate_digit(newValue); }
-
 // DCS buffers
+//DcsBios::IntegerBuffer adiBankBuffer            (SAI_BANK_GAUGE_ADDRESS , SAI_BANK_GAUGE_MASK , SAI_BANK_GAUGE_SHIFTBY , onAdiBankChange);
+//DcsBios::IntegerBuffer adiPitchBuffer           (SAI_PITCH_GAUGE_ADDRESS , SAI_PITCH_GAUGE_MASK , SAI_PITCH_GAUGE_SHIFTBY , onAdiPitchChange);
 DcsBios::IntegerBuffer adiBankBuffer            (ADI_BANK_GAUGE_ADDRESS , ADI_BANK_GAUGE_MASK , ADI_BANK_GAUGE_SHIFTBY , onAdiBankChange);
 DcsBios::IntegerBuffer adiPitchBuffer           (ADI_PITCH_GAUGE_ADDRESS , ADI_PITCH_GAUGE_MASK , ADI_PITCH_GAUGE_SHIFTBY , onAdiPitchChange);
-DcsBios::IntegerBuffer fuelflowcounter100Buffer  (FUELFLOWCOUNTER_100_GAUGE_ADDRESS,    FUELFLOWCOUNTER_100_GAUGE_MASK,    FUELFLOWCOUNTER_100_GAUGE_SHIFTBY,    onFuelflowcounter100Change);
-DcsBios::IntegerBuffer fuelflowcounter1kBuffer   (FUELFLOWCOUNTER_1K_GAUGE_ADDRESS,     FUELFLOWCOUNTER_1K_GAUGE_MASK,     FUELFLOWCOUNTER_1K_GAUGE_SHIFTBY,     onFuelflowcounter1kChange);
-DcsBios::IntegerBuffer fuelflowcounter10kBuffer  (FUELFLOWCOUNTER_10K_GAUGE_ADDRESS,    FUELFLOWCOUNTER_10K_GAUGE_MASK,    FUELFLOWCOUNTER_10K_GAUGE_SHIFTBY,    onFuelflowcounter10kChange);
-DcsBios::IntegerBuffer UpdateCounterBuffer(0xfffe, 0x00ff, 0, display_fuelflow);
 
 void setup() {
   stepper_init();    
@@ -177,8 +153,6 @@ void setup() {
   encoder_button.setLongClickDetectedHandler(handle_encoder_longpress);
   adjust_encoder.setChangedHandler(adjust_axes);
   adjust_encoder.resetPosition();
-  display.begin(SSD1306_SWITCHCAPVCC, DISPLAY_ADDRESS);
-  display_fuelflow("00000");
   DcsBios::setup();
 }
  

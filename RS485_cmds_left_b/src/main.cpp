@@ -128,7 +128,7 @@ void debug() {
 void initialize() {
   display.setBrightness(BRIGHT_HIGH);
   display.showString(" -- --");
-  delay(2000);
+  delay(5000);
   display.clear(); 
 }
 

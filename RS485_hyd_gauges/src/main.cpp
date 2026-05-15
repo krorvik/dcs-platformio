@@ -7,7 +7,7 @@
 
 // Stepper defs, speed and accel are same (VID2x)
 #define SPEED 5000 // About a second for a sweep ;)
-#define ACCELERATION 65535
+#define ACCELERATION 5000
 // Ardiuno pins - always the same pairs
 #define STEP_PIN_A 10
 #define DIR_PIN_A 12

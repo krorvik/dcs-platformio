@@ -5,8 +5,8 @@
 #include "FastAccelStepper.h"
 
 // Stepper defs, speed and accel are same (VID2x)
-#define SPEED 5000 // About a second for a sweep ;)
-#define ACCELERATION 65535
+#define SPEED 1000 // About a second for a sweep ;)
+#define ACCELERATION 500
 // Ardiuno pins - always the same pairs
 #define STEP_PIN_A 9
 #define DIR_PIN_A 11

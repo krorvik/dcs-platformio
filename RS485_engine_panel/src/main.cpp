@@ -3,6 +3,8 @@
 #include "DcsBios.h"
 #include "f16c_data.h"
 
+#define JFS_RUN_PIN A5
+
 unsigned int eng_cont_last_pos = 2;  // start pointing up, 0 = down, 1 = middle, 2 = up
 
 unsigned int getContPos() {
@@ -79,16 +81,16 @@ void evalCont() {
 DcsBios::Switch3Pos abResetSw("AB_RESET_SW", 3, 4);
 DcsBios::Switch2Pos maxPwrSw("MAX_PWR_SW", 5);
 DcsBios::Switch3Pos jfsSw("JFS_SW", 9, 8);
-DcsBios::LED lightJfsRun(LIGHT_JFS_RUN_LED_ADDRESS, LIGHT_JFS_RUN_LED_MASK, 10);
+DcsBios::LED lightJfsRun(LIGHT_JFS_RUN_LED_ADDRESS, LIGHT_JFS_RUN_LED_MASK, JFS_RUN_PIN);
 DcsBios::Switch2Pos manpitch("MANUAL_PITCH_SW", 11);
 
 void initalize() {
   pinMode(6, INPUT_PULLUP);
   pinMode(7, INPUT_PULLUP);
-  pinMode(10, OUTPUT);
-  digitalWrite(10, HIGH);
-  delay(1000);
-  digitalWrite(10, LOW);  
+  pinMode(JFS_RUN_PIN, OUTPUT);
+  digitalWrite(JFS_RUN_PIN, 1);
+  delay(5000);
+  digitalWrite(JFS_RUN_PIN, 0);  
 }
 
 void setup() {

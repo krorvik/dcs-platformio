@@ -1,5 +1,6 @@
 // For RS485
-#define DCSBIOS_IRQ_SERIAL
+#define DCSBIOS_RS485_SLAVE 55
+#define TXENABLE_PIN 2
 #include "DcsBios.h"
 #include "f16c_data.h"  // This is a generated header with all addresses. Rewriting this file is not fun. 
 

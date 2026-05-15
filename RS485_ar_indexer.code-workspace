@@ -1,0 +1,188 @@
+{
+	"folders": [
+		{
+			"path": "RS485_test_panel"
+		},
+		{
+			"name": "RS485_fuel_panel",
+			"path": "RS485_fuel_panel"
+		},
+		{
+			"name": "RS485_iff_A",
+			"path": "RS485_iff_A"
+		},
+		{
+			"name": "RS485_iff_B",
+			"path": "RS485_iff_B"
+		},
+		{
+			"path": "RS485_rwr_prime"
+		},
+		{
+			"path": "RS485_ded"
+		},
+		{
+			"path": "RS485_caution_panel_left"
+		},
+		{
+			"path": "RS485_caution_panel_right"
+		},
+		{
+			"path": "RS485_epu_canopy_pitch"
+		},
+		{
+			"path": "RS485_elec_panel"
+		},
+		{
+			"path": "RS485_engine_panel"
+		},
+		{
+			"path": "RS485_lg_panel"
+		},
+		{
+			"path": "RS485_cmds_left_b"
+		},
+		{
+			"path": "RS485_twa_panel"
+		},
+		{
+			"path": "RS485_uhf_panel"
+		},
+		{
+			"name": "RS485_ecm_panel",
+			"path": "RS485_ecm_panel"
+		},
+		{
+			"name": "RS485_intlighting",
+			"path": "RS485_intlighting"
+		},
+		{
+			"path": "RS485_flcs_panel"
+		},
+		{
+			"path": "RS485_extlights_A"
+		},
+		{
+			"path": "RS485_audio1"
+		},
+		{
+			"path": "RS485_misc_panel"
+		},
+		{
+			"path": "RS485_ehsi"
+		},
+		{
+			"path": "RS485_uhf_encoders"
+		},
+		{
+			"path": "RS485_oxy_panel"
+		},
+		{
+			"name": "RS485_avionics_power_panel",
+			"path": "RS485_avionics_power_panel"
+		},
+		{
+			"path": "RS485_intlights_panel"
+		},
+		{
+			"path": "RS485_hud_panel"
+		},
+		{
+			"path": "RS485_snsr_power_panel"
+		},
+		{
+			"path": "RS485_antiice_panel"
+		},
+		{
+			"path": "RS485_aircond_panel"
+		},
+		{
+			"path": "USB_ecm"
+		},
+		{
+			"path": "RS485_hmcs_panel"
+		},
+		{
+			"path": "RS485_right_eyebrow"
+		},
+		{
+			"path": "RS485_altimeter_speed"
+		},
+		{
+			"path": "RS485_adi_ball"
+		},
+		{
+			"path": "RS485_aoa_vvi_indexers"
+		},
+		{
+			"path": "RS485_wet_compass"
+		},
+		{
+			"path": "RS485_pfi_displays"
+		},
+		{
+			"path": "RS485_sai_ball"
+		},
+		{
+			"path": "RS485_left_eyebrow"
+		},
+		{
+			"path": "RS485_engine_steppers_top"
+		},
+		{
+			"path": "RS485_engine_steppers_bottom"
+		},
+		{
+			"path": "RS485_sidewall_left"
+		},
+		{
+			"path": "RS485_sidewall_right"
+		},
+		{
+			"path": "RS485_fuel_gauge"
+		},
+		{
+			"path": "RS485_hyd_gauges"
+		},
+		{
+			"path": "RS485_pressure_epufuel_gauges"
+		},
+		{
+			"name": "RS485_master",
+			"path": "RS485_master"
+		},
+		{
+			"path": "RS485_pfi_controls"
+		},
+		{
+			"path": "RS485_altimeter_display"
+		},
+		{
+			"path": "RS485_baro_display"
+		},
+		{
+			"path": "RS485_mach_display"
+		},
+		{
+			"path": "RS485_fuelflow_display"
+		},
+		{
+			"path": "TEST_spinner"
+		},
+		{
+			"path": "RS485_adi_leds"
+		},
+		{
+			"path": "RS485_adi_ilsdisplay"
+		},
+		{
+			"path": "RS485_trim_panel"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"viper.h": "c",
+			"*.inc": "cpp"
+		}
+	}
+}

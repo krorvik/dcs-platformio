@@ -5,24 +5,23 @@
 #include "FastAccelStepper.h"
 
 
-#define AOA_STEPS_MIN 0
-#define AOA_STEPS_ZERO 520
-#define AOA_STEPS_MAX 1720
+#define AOA_STEPS_OFF 0
+#define AOA_STEPS_ZERO 540
+#define AOA_STEPS_MAX 1650
 
-#define VVI_STEPS_MIN 0
+#define VVI_STEPS_OFF 0
 #define VVI_STEPS_ZERO 880
 #define VVI_STEPS_MAX 1600
 // Common motors
-#define SPEED 5000 
-#define ACCELERATION 4000
+#define ZERO_SPEED 50
+#define SPEED 5000
+#define ACCELERATION 10000
 
 // helper variables
 
 FastAccelStepperEngine stepper_engine = FastAccelStepperEngine();
 FastAccelStepper *aoa_stepper = NULL;
 FastAccelStepper *vvi_stepper = NULL;
-
-FastAccelStepper *stepperselector[2];
 
 unsigned int translate_indexer(unsigned int value, unsigned int steps_min, unsigned int steps_zero, unsigned int steps_max) {
   // TODO: Bad algo. Find real centers, and adjust from there.
@@ -35,17 +34,16 @@ unsigned int translate_indexer(unsigned int value, unsigned int steps_min, unsig
 }
 
 unsigned int translate_aoa(unsigned int value) {
-  return translate_indexer(value, AOA_STEPS_MIN, AOA_STEPS_ZERO, AOA_STEPS_MAX);
+  return translate_indexer(value, AOA_STEPS_OFF, AOA_STEPS_ZERO, AOA_STEPS_MAX);
 }
 
 unsigned int translate_vvi(unsigned int value) {
-  return translate_indexer(value, VVI_STEPS_MIN, VVI_STEPS_ZERO, VVI_STEPS_MAX);
+  return translate_indexer(value, VVI_STEPS_OFF, VVI_STEPS_ZERO, VVI_STEPS_MAX);
 }
 
 void aoa_stepper_init() {
   aoa_stepper = stepper_engine.stepperConnectToPin(10);
-  stepperselector[0] = aoa_stepper;
-  aoa_stepper->setDirectionPin(12);
+  aoa_stepper->setDirectionPin(12, false);
   aoa_stepper->setSpeedInHz(SPEED);
   aoa_stepper->setAcceleration(ACCELERATION);
   aoa_stepper->setCurrentPosition(0);
@@ -53,8 +51,7 @@ void aoa_stepper_init() {
 
 void vvi_stepper_init() {
   vvi_stepper = stepper_engine.stepperConnectToPin(9);
-  stepperselector[1] = vvi_stepper;
-  vvi_stepper->setDirectionPin(11);
+  vvi_stepper->setDirectionPin(11, false);
   vvi_stepper->setSpeedInHz(SPEED);
   vvi_stepper->setAcceleration(ACCELERATION);
   vvi_stepper->setCurrentPosition(0);
@@ -81,28 +78,35 @@ void wait() {
 }
 
 void steppers_zero() {
-  aoa_stepper->setSpeedInHz(SPEED / 10);
-  vvi_stepper->setSpeedInHz(SPEED / 10);
   aoa_stepper->move(-3200);
   vvi_stepper->move(-3200);
   wait();
-  aoa_stepper->setSpeedInHz(SPEED);
-  vvi_stepper->setSpeedInHz(SPEED);
+  aoa_stepper->setSpeedInHz(ZERO_SPEED);
+  vvi_stepper->setSpeedInHz(ZERO_SPEED);
+  aoa_stepper->move(-300);
+  vvi_stepper->move(-300);
+  wait();
   aoa_stepper->setCurrentPosition(0);
   vvi_stepper->setCurrentPosition(0);
+  aoa_stepper->setSpeedInHz(SPEED);
+  vvi_stepper->setSpeedInHz(SPEED);
 }
 
 void debug_sweep() {
-  aoa_stepper->moveTo(AOA_STEPS_MIN);
-  vvi_stepper->moveTo(VVI_STEPS_MIN);
-  wait();
   aoa_stepper->moveTo(AOA_STEPS_ZERO);
-  aoa_stepper->moveTo(VVI_STEPS_ZERO);
+  wait();
+  aoa_stepper->moveTo(translate_aoa(32768));
   wait();
   aoa_stepper->moveTo(AOA_STEPS_MAX);
-  vvi_stepper->moveTo(VVI_STEPS_MAX);
   wait();
   aoa_stepper->moveTo(0);
+  wait();
+  vvi_stepper->moveTo(VVI_STEPS_ZERO);
+  wait();
+  vvi_stepper->moveTo(translate_vvi(32768));
+  wait();
+  vvi_stepper->moveTo(VVI_STEPS_MAX);
+  wait();
   vvi_stepper->moveTo(0);
   wait();
 }
@@ -116,7 +120,7 @@ DcsBios::IntegerBuffer vviBuffer                (VVI_GAUGE_ADDRESS , VVI_GAUGE_M
 void setup() {
   stepper_init(); 
   steppers_zero();
-  debug_sweep();
+  //debug_sweep();
   DcsBios::setup();
 }
 
